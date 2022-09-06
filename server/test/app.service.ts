@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MikroORM } from '@mikro-orm/core';
+import { EntityManager, MikroORM } from '@mikro-orm/core';
 
 @Injectable()
 export class TestAppService implements OnModuleInit {
@@ -13,5 +13,9 @@ export class TestAppService implements OnModuleInit {
   async clearDatabase() {
     const generator = this.orm.getSchemaGenerator();
     await generator.refreshDatabase();
+  }
+
+  getEntityManager(): EntityManager {
+    return this.orm.em;
   }
 }

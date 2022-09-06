@@ -1,8 +1,18 @@
-import { BeforeCreate, BeforeUpdate, Entity, Index, PrimaryKey, Property } from '@mikro-orm/core';
+import {
+  BeforeCreate,
+  BeforeUpdate,
+  Collection,
+  Entity,
+  Index,
+  ManyToMany,
+  PrimaryKey,
+  Property,
+} from '@mikro-orm/core';
 import * as md5 from 'md5';
 import { v4 } from 'uuid';
 import * as argon2 from 'argon2';
 import { Account } from '../dto/account.response';
+import { UserResponse } from '../../friends/dto/user.response';
 
 @Entity()
 export class User {
@@ -35,6 +45,23 @@ export class User {
   @Property({ type: 'date' })
   lastOnline = new Date();
 
+  @ManyToMany({
+    entity: () => User,
+    inversedBy: (u) => u.incomingRequests,
+    owner: true,
+    pivotTable: 'user_to_request',
+    joinColumn: 'sender',
+    inverseJoinColumn: 'receiver',
+    hidden: true,
+  })
+  outgoingRequests = new Collection<User>(this);
+
+  @ManyToMany(() => User, (u) => u.outgoingRequests, { hidden: true })
+  incomingRequests = new Collection<User>(this);
+
+  @ManyToMany({ hidden: true })
+  friends = new Collection<User>(this);
+
   constructor(email: string, displayName: string, password: string) {
     this.id = v4();
     this.displayName = displayName;
@@ -53,6 +80,16 @@ export class User {
     return {
       id: this.id,
       email: this.email,
+      username: this.username,
+      displayName: this.displayName,
+      image: this.image,
+      bio: this.bio,
+    };
+  }
+
+  toUserResponse(): UserResponse {
+    return {
+      id: this.id,
       username: this.username,
       displayName: this.displayName,
       image: this.image,

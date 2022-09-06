@@ -1,29 +1,33 @@
 import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
-import { ObjectSchema, ValidationErrorItem } from 'joi';
 import { FieldError } from '../dto/error.response';
+import { ValidationError } from 'yup';
 
 @Injectable()
-export class JoiValidationPipe implements PipeTransform {
-  constructor(private schema: ObjectSchema) {}
+export class YupValidationPipe implements PipeTransform {
+  constructor(private readonly schema: any) {}
 
-  transform(value: any, _: ArgumentMetadata) {
-    const { error } = this.schema.validate(value, { abortEarly: false });
-    if (error) {
-      const errors: FieldError[] = [];
+  async transform(value: any, _: ArgumentMetadata) {
+    try {
+      await this.schema.validate(value, { abortEarly: false });
+    } catch (err) {
+      if (err instanceof ValidationError) {
+        const errors: FieldError[] = [];
 
-      error.details.map((value: ValidationErrorItem) => {
-        const message = value.message.replaceAll('"', '');
-        errors.push({
-          field: value.path[0].toString(),
-          message: `${message[0].toUpperCase()}${message.slice(1)}`,
+        err.inner.map((value: ValidationError) => {
+          const message = value.errors[0];
+          errors.push({
+            field: value.path ?? 'Unknown Field',
+            message: `${message[0].toUpperCase()}${message.slice(1)}`,
+          });
         });
-      });
 
-      throw new BadRequestException({
-        message: 'Input data validation failed',
-        errors,
-      });
+        throw new BadRequestException({
+          message: 'Input data validation failed',
+          errors,
+        });
+      }
     }
+
     return value;
   }
 }

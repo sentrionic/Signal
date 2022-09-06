@@ -60,7 +60,9 @@ describe('UsersService', () => {
     });
 
     it('should throw an error if calling register with an email that already exists', async () => {
-      persistAndFlush = jest.fn().mockRejectedValue(new UniqueConstraintViolationException(new Error()));
+      persistAndFlush = jest
+        .fn()
+        .mockRejectedValue(new UniqueConstraintViolationException(new Error()));
       repository.persistAndFlush = persistAndFlush;
 
       const user = { ...userMock };
@@ -81,7 +83,9 @@ describe('UsersService', () => {
       repository.persistAndFlush = persistAndFlush;
 
       const user = { ...userMock };
-      return expect(async () => await service.register({ ...user })).rejects.toThrow(InternalServerErrorException);
+      return expect(async () => await service.register({ ...user })).rejects.toThrow(
+        InternalServerErrorException,
+      );
     });
   });
 
@@ -93,7 +97,9 @@ describe('UsersService', () => {
       findOne = jest.fn().mockReturnValue(Promise.resolve(user));
       repository.findOne = findOne;
 
-      const passwordSpy = jest.spyOn(user, 'isPasswordValid').mockImplementation(() => Promise.resolve(true));
+      const passwordSpy = jest
+        .spyOn(user, 'isPasswordValid')
+        .mockImplementation(() => Promise.resolve(true));
 
       const result = await service.login({ ...user });
 
@@ -121,7 +127,9 @@ describe('UsersService', () => {
       findOne = jest.fn().mockReturnValue(Promise.resolve(user));
       repository.findOne = findOne;
 
-      const passwordSpy = jest.spyOn(user, 'isPasswordValid').mockImplementation(() => Promise.resolve(false));
+      const passwordSpy = jest
+        .spyOn(user, 'isPasswordValid')
+        .mockImplementation(() => Promise.resolve(false));
 
       expect(async () => await service.login({ ...user })).rejects.toThrow(
         new UnauthorizedException(
@@ -154,7 +162,9 @@ describe('UsersService', () => {
       findOne = jest.fn().mockReturnValue(Promise.resolve(null));
       repository.findOne = findOne;
 
-      return expect(async () => await service.getCurrent(user.id)).rejects.toThrow(new NotFoundException());
+      return expect(async () => await service.getCurrent(user.id)).rejects.toThrow(
+        new NotFoundException(),
+      );
     });
   });
 
@@ -221,7 +231,9 @@ describe('UsersService', () => {
       flush = jest.fn().mockReturnValue(Promise<void>);
       repository.flush = flush;
 
-      const uploadSpy = jest.spyOn(fileService, 'uploadAvatar').mockReturnValue(Promise.resolve('avatar.webp'));
+      const uploadSpy = jest
+        .spyOn(fileService, 'uploadAvatar')
+        .mockReturnValue(Promise.resolve('avatar.webp'));
       user.username = `${updateInput.displayName}#0123`;
       const file = { ...fileMock };
 

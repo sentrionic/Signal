@@ -57,13 +57,17 @@ export class UsersService {
     const user = await this.userRepository.findOne({ email });
 
     if (!user) {
-      throw new UnauthorizedException(formatErrors([{ field: 'email', message: 'Invalid Credentials' }]));
+      throw new UnauthorizedException(
+        formatErrors([{ field: 'email', message: 'Invalid Credentials' }]),
+      );
     }
 
     const isValid = await user.isPasswordValid(password);
 
     if (!isValid) {
-      throw new UnauthorizedException(formatErrors([{ field: 'email', message: 'Invalid Credentials' }]));
+      throw new UnauthorizedException(
+        formatErrors([{ field: 'email', message: 'Invalid Credentials' }]),
+      );
     }
 
     return user.toAccount();

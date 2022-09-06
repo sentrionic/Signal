@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { FieldError, User } from '../lib/models/models';
+import type { FieldError, RegisterUser } from '../lib/api/models';
 import { useUserStore } from '@/stores/userStore';
-import { handler } from '@/lib/api/handler';
 import { HTTPError } from 'ky';
 import router from '@/router';
 import { useForm } from 'vee-validate';
@@ -11,16 +10,17 @@ import FormWrapper from '../components/form/FormWrapper.vue';
 import FormField from '../components/form/FormField.vue';
 import FormHeader from '../components/form/FormHeader.vue';
 import FormButton from '../components/form/FormButton.vue';
+import { register } from '@/lib/api/handler/account';
 
-const { errors, values, setFieldError, setErrors, isSubmitting } = useForm({
+const { errors, values, setFieldError, setErrors, isSubmitting } = useForm<RegisterUser>({
   validationSchema: RegisterSchema,
 });
 
 const { updateUser } = useUserStore();
 
-const register = async () => {
+const handleSubmit = async () => {
   try {
-    const result = await handler.post('accounts', { json: { ...values } }).json<User>();
+    const result = await register(values);
     updateUser(result);
     router.push('/dashboard');
   } catch (err) {
@@ -45,7 +45,7 @@ export default {
 <template>
   <FormWrapper title="Welcome!">
     <FormHeader title="Create your account" />
-    <form class="space-y-4 md:space-y-6" @submit.prevent="register">
+    <form class="space-y-4 md:space-y-6" @submit.prevent="handleSubmit">
       <FormField
         label="Email"
         name="email"

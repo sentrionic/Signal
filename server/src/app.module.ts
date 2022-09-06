@@ -3,15 +3,17 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { AppService } from './app.service';
-import { configSchema } from './common/schema/config.schema';
+import { ConfigSchema } from './common/schema/config.schema';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      validationSchema: configSchema,
+      validationSchema: ConfigSchema,
     }),
     MikroOrmModule.forRoot(),
     UsersModule,
+    FriendsModule,
   ],
   controllers: [],
   providers: [AppService],

@@ -23,7 +23,7 @@ export default {
             <p
               class="mb-8 leading-relaxed font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400"
             >
-              An open source chat application using Ktor and Vue.<br />Keep in touch with your
+              An open source chat application using NestJS and Vue.<br />Keep in touch with your
               friends and find new ones!
             </p>
             <div class="flex justify-center space-x-10">

@@ -1,13 +1,27 @@
-import * as Joi from 'joi';
+import { object, string } from 'yup';
 
-export const registerSchema = Joi.object({
-  email: Joi.string().email().required().trim().lowercase(),
-  displayName: Joi.string().min(3).max(30).trim().required(),
-  password: Joi.string().min(6).max(150).required(),
+export const RegisterSchema = object().shape({
+  displayName: string().min(3).max(30).trim().required('Display Name is required'),
+  email: string().email().lowercase().trim().required('Email is required'),
+  password: string()
+    .trim()
+    .min(6, 'Password must be at least 6 characters long')
+    .max(150)
+    .required('Password is required'),
 });
 
-export const updateAccountSchema = Joi.object({
-  email: Joi.string().email().required().trim().lowercase(),
-  displayName: Joi.string().min(3).max(30).trim().required(),
-  bio: Joi.string().max(200).optional(),
+export const UpdateSchema = object().shape({
+  displayName: string().min(3).max(30).trim().required('Display Name is required'),
+  email: string().email().lowercase().trim().required('Email is required'),
+  bio: string().optional().max(200),
+});
+
+const usernameRegex = new RegExp('^.{3,32}#[0-9]{4}$');
+
+export const FriendSchema = object().shape({
+  username: string()
+    .min(3)
+    .trim()
+    .matches(usernameRegex, 'Must be a valid username')
+    .required('A username is required'),
 });

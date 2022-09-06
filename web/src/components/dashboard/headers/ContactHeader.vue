@@ -1,0 +1,25 @@
+<script lang="ts" setup>
+import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
+import { storeToRefs } from 'pinia';
+import { SidebarMode } from '../../../lib/models/enums';
+import { useSidebarStore } from '../../../stores/sidebarStore';
+import SearchInput from './components/SearchInput.vue';
+import IconButton from '../../common/IconButton.vue';
+
+const store = useSidebarStore();
+const { query } = storeToRefs(store);
+const { setMode, updateQuery } = store;
+
+const handdleBack = () => {
+  setMode(SidebarMode.MESSAGES);
+};
+</script>
+
+<template>
+  <div class="flex items-center justify-between h-full mx-4">
+    <IconButton description="Go Back" :handleClick="handdleBack">
+      <ArrowLeftIcon class="w-6 h-6" />
+    </IconButton>
+    <SearchInput :text="query" @onChanged="updateQuery" />
+  </div>
+</template>

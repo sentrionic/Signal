@@ -31,12 +31,6 @@ const router = createRouter({
       component: () => import('../pages/Dashboard.vue'),
       beforeEnter: (_, __, next) => isLoggedIn(next),
     },
-    {
-      path: '/account',
-      name: 'account',
-      component: () => import('../pages/Account.vue'),
-      beforeEnter: (_, __, next) => isLoggedIn(next),
-    },
   ],
 });
 

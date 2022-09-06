@@ -14,3 +14,4 @@ For more information about each component take a look at their README's.
 ## Features
 
 - Account System & Session Authentication
+- Friend System [Requests & Friends]
