@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { FieldError, User } from '../lib/models/models';
 import { useUserStore } from '@/stores/userStore';
 import { handler } from '@/lib/api/handler';
 import { HTTPError } from 'ky';
@@ -12,6 +11,7 @@ import FormButton from '../components/form/FormButton.vue';
 import FormField from '../components/form/FormField.vue';
 import { useToast } from '@/lib/composable/useToast';
 import SuccessErrorToast from '../components/common/SuccessErrorToast.vue';
+import type { Account, FieldError } from '@/lib/api/models';
 
 const { user, updateUser } = useUserStore();
 
@@ -39,7 +39,7 @@ const update = async () => {
 
     if (file.value) formData.append('image', file.value);
 
-    const result = await handler.put('accounts', { body: formData }).json<User>();
+    const result = await handler.put('accounts', { body: formData }).json<Account>();
     updateUser(result);
     useToast({ type: 'success' });
   } catch (err) {
