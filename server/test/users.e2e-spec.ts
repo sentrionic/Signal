@@ -12,7 +12,7 @@ import { validate } from 'uuid';
 import { UpdateUserInput } from '../src/users/dto/update-user.dto';
 import { setupApp } from '../src/app';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { configSchema } from '../src/common/schema/config.schema';
+import { ConfigSchema } from '../src/common/schema/config.schema';
 
 describe('UsersController (e2e)', () => {
   let app: NestExpressApplication;
@@ -25,7 +25,7 @@ describe('UsersController (e2e)', () => {
       imports: [
         ConfigModule.forRoot({
           envFilePath: '.env.test',
-          validationSchema: configSchema,
+          validationSchema: ConfigSchema,
         }),
         MikroOrmModule.forRoot(),
         UsersModule,
@@ -105,7 +105,7 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'displayName', message: 'DisplayName is required' }],
+        errors: [{ field: 'displayName', message: 'Display Name is required' }],
       });
       expect(headers['set-cookie']).toBeUndefined();
     });
@@ -120,7 +120,12 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'displayName', message: 'DisplayName length must be at least 3 characters long' }],
+        errors: [
+          {
+            field: 'displayName',
+            message: 'DisplayName must be at least 3 characters',
+          },
+        ],
       });
       expect(headers['set-cookie']).toBeUndefined();
     });
@@ -149,7 +154,7 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'password', message: 'Password length must be at least 6 characters long' }],
+        errors: [{ field: 'password', message: 'Password must be at least 6 characters long' }],
       });
       expect(headers['set-cookie']).toBeUndefined();
     });
@@ -167,7 +172,9 @@ describe('UsersController (e2e)', () => {
       await createAccount(input);
 
       // Confirm successful login
-      const { body, status, headers } = await request(server).post('/api/accounts/login').send(input);
+      const { body, status, headers } = await request(server)
+        .post('/api/accounts/login')
+        .send(input);
 
       expect(status).toEqual(200);
       validateUserResponse(body, input);
@@ -192,7 +199,9 @@ describe('UsersController (e2e)', () => {
     });
 
     it('should throw an UnauthorizedException if no user is found for the given email', async () => {
-      const { body, status, headers } = await request(server).post('/api/accounts/login').send(input);
+      const { body, status, headers } = await request(server)
+        .post('/api/accounts/login')
+        .send(input);
       expect(status).toEqual(401);
       expect(body).toEqual({
         errors: [{ field: 'email', message: 'Invalid Credentials' }],
@@ -201,7 +210,7 @@ describe('UsersController (e2e)', () => {
     });
   });
 
-  describe('[GETCURRENT] - /api/accounts (GET)', () => {
+  describe('[GET_CURRENT] - /api/accounts (GET)', () => {
     const input: RegisterInput = {
       email: 'test@example.com',
       password: 'password',
@@ -239,7 +248,7 @@ describe('UsersController (e2e)', () => {
     });
   });
 
-  describe('[UPDATEACCOUNT] - /api/accounts (PUT)', () => {
+  describe('[UPDATE_ACCOUNT] - /api/accounts (PUT)', () => {
     const input: RegisterInput = {
       email: 'test@example.com',
       password: 'password',
@@ -354,7 +363,7 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'displayName', message: 'DisplayName is required' }],
+        errors: [{ field: 'displayName', message: 'Display Name is required' }],
       });
     });
 
@@ -371,7 +380,12 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'displayName', message: 'DisplayName length must be at least 3 characters long' }],
+        errors: [
+          {
+            field: 'displayName',
+            message: 'DisplayName must be at least 3 characters',
+          },
+        ],
       });
     });
 
@@ -392,7 +406,7 @@ describe('UsersController (e2e)', () => {
       expect(status).toEqual(400);
       expect(body).toEqual({
         message: 'Input data validation failed',
-        errors: [{ field: 'bio', message: 'Bio length must be less than or equal to 200 characters long' }],
+        errors: [{ field: 'bio', message: 'Bio must be at most 200 characters' }],
       });
     });
   });

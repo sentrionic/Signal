@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { User } from '../lib/models/models';
+import type { LoginUser } from '../lib/api/models';
 import { useUserStore } from '@/stores/userStore';
-import { handler } from '@/lib/api/handler';
 import type { HTTPError } from 'ky';
 import router from '@/router';
 import { useForm } from 'vee-validate';
@@ -10,16 +9,17 @@ import FormWrapper from '../components/form/FormWrapper.vue';
 import FormField from '../components/form/FormField.vue';
 import FormHeader from '../components/form/FormHeader.vue';
 import FormButton from '../components/form/FormButton.vue';
+import { login } from '@/lib/api/handler/account';
 
-const { errors, values, setFieldError, isSubmitting } = useForm({
+const { errors, values, setFieldError, isSubmitting } = useForm<LoginUser>({
   validationSchema: LoginSchema,
 });
 
 const { updateUser } = useUserStore();
 
-const login = async () => {
+const handleSubmit = async () => {
   try {
-    const result = await handler.post('accounts/login', { json: { ...values } }).json<User>();
+    const result = await login(values);
     updateUser(result);
     router.push('/dashboard');
   } catch (err) {
@@ -39,7 +39,7 @@ export default {
 <template>
   <FormWrapper title="Welcome Back!">
     <FormHeader title="Sign into your account" />
-    <form class="space-y-4 md:space-y-6" @submit.prevent="login">
+    <form class="space-y-4 md:space-y-6" @submit.prevent="handleSubmit">
       <FormField
         label="Email"
         name="email"

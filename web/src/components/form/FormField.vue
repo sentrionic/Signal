@@ -1,15 +1,16 @@
 <script lang="ts" setup>
 import { Field } from 'vee-validate';
 
-interface IProps {
+interface IFormFieldProps {
   label: string;
   type: string;
   name: string;
-  autocomplete: string;
+  autocomplete?: string;
   error?: string;
+  placeholder?: string;
 }
 
-defineProps<IProps>();
+defineProps<IFormFieldProps>();
 </script>
 
 <template>
@@ -24,6 +25,7 @@ defineProps<IProps>();
       :autocomplete="autocomplete"
       :class="error ? 'border-red-700' : 'border-gray-300'"
       class="form-input"
+      :placeholder="placeholder"
     >
     </Field>
     <p v-if="error" class="mt-2 text-red-700">
