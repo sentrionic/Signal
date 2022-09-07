@@ -83,3 +83,8 @@ jobs:
 
       - name: Run E2E
         run: pnpm test:e2e
+        env:
+          DATABASE_URL: postgresql://root:password@localhost:5432/signal_test?sslmode=disable
+          REDIS_URL: localhost:6379
+          SECRET: secret
+          COOKIE_NAME: sgl

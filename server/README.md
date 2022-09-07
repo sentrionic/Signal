@@ -9,7 +9,7 @@ The server written using [TypeScript](https://www.typescriptlang.org/) and [Nest
 - PostgreSQL
 - Sessions for authentication
 - [ESLint](https://eslint.org/) for linting
-- [Joi](https://joi.dev/) for validation
+- [Yup](https://github.com/jquense/yup) for validation
 - [Sharp](https://sharp.pixelplumbing.com/) for image resizing
 - [S3](https://aws.amazon.com/s3/) for storing the files
 
