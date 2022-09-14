@@ -14,7 +14,6 @@
   grid-column-start: footer;
   grid-row-end: footer;
   grid-column-end: footer;
-  border: 1px solid;
-  border-color: black;
+  @apply border-l border-borderLight dark:border-borderDark;
 }
 </style>

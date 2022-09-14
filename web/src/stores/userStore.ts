@@ -1,4 +1,4 @@
-import type { Account } from '@/lib/api/models';
+import type { Account } from '@/lib/api';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import Storage from '../lib/utils/storage';

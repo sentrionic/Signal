@@ -26,7 +26,7 @@ const router = createRouter({
       component: () => import('../pages/Register.vue'),
     },
     {
-      path: '/dashboard',
+      path: '/dashboard/:id*',
       name: 'dashboard',
       component: () => import('../pages/Dashboard.vue'),
       beforeEnter: (_, __, next) => isLoggedIn(next),

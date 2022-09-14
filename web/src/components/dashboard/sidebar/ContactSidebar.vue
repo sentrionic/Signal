@@ -8,10 +8,19 @@ import RemoveFriendModal from '../../modals/RemoveFriendModal.vue';
 import { useFriendsQuery } from '@/lib/composable/useFriendsQuery';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
+import { getOrCreateChat } from '@/lib/api/handler/chats';
+import { useRouter } from 'vue-router';
+import { SidebarMode } from '@/lib/models/enums';
+import { cKey, useChatsQuery } from '@/lib/composable/useChatsQuery';
+import { useQueryClient } from 'vue-query';
+import type { GroupChatResponse } from '@/lib/api';
 
 const { data } = useFriendsQuery();
+const { data: chatData } = useChatsQuery();
 const store = useSidebarStore();
 const { query } = storeToRefs(store);
+const router = useRouter();
+const cache = useQueryClient();
 
 const isAddFriendVisible = ref(false);
 const isRemoveFriendVisible = ref(false);
@@ -25,12 +34,33 @@ const options: ContextMenuItem[] = [
   { name: 'Remove Friend', icon: UserMinusIcon, isDestructive: true },
 ];
 
-const handleClick = (event: MouseEvent, value: string) => {
+const handleContextMenu = (event: MouseEvent, value: string) => {
   contextmenu.value.showMenu(event, value);
 };
 
 const optionClicked = (event: ContextMenuSelection) => {
   if (event.option.name === 'Remove Friend') onToggleRemoveFriend();
+};
+
+const handleClick = async (id: string) => {
+  const contact = chatData.value?.chats.find((e) => e.user.id === id);
+
+  if (contact) {
+    router.push({ name: 'dashboard', params: { id: contact.id } });
+    store.setMode(SidebarMode.MESSAGES);
+  } else {
+    try {
+      const response = await getOrCreateChat(id);
+      cache.setQueryData<GroupChatResponse>(cKey, (old) => {
+        if (!old) return { groups: [], chats: [] };
+        return { groups: [...old.groups], chats: [response, ...old.chats] };
+      });
+      router.push({ name: 'dashboard', params: { id: response.id } });
+      store.setMode(SidebarMode.MESSAGES);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 };
 
 const filteredList = computed(() => {
@@ -50,11 +80,12 @@ const filteredList = computed(() => {
         v-else
         v-for="friend in filteredList"
         :key="friend.id"
-        @contextmenu.prevent.stop="handleClick($event, friend.id)"
+        @click="handleClick(friend.id)"
+        @contextmenu.prevent.stop="handleContextMenu($event, friend.id)"
       >
         <li>
           <div
-            class="flex items-center space-x-4 hover:bg-zinc-100 rounded-md p-2.5 hover:cursor-pointer"
+            class="flex items-center space-x-4 hover:bg-zinc-100 dark:hover:bg-hoverDark rounded-md p-2.5 hover:cursor-pointer"
           >
             <div class="flex-shrink-0">
               <img
@@ -100,9 +131,5 @@ const filteredList = computed(() => {
 
 .container::-webkit-scrollbar {
   display: none;
-}
-
-.fab {
-  @apply absolute bottom-2 right-2 text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-full p-3 text-center inline-flex items-center mr-2 dark:bg-primary-600 dark:hover:bg-primary-700;
 }
 </style>

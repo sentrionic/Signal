@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 defineProps<{ title: string; handleClick: () => void }>();
 </script>
 
@@ -13,6 +13,6 @@ defineProps<{ title: string; handleClick: () => void }>();
 
 <style>
 .item {
-  @apply flex items-center py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white hover:cursor-pointer;
+  @apply flex items-center py-2 px-4 hover:bg-gray-100 hover:dark:bg-hoverDark hover:cursor-pointer;
 }
 </style>

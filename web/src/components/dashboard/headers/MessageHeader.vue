@@ -17,18 +17,18 @@ const visible = ref(false);
 const onHide = () => (visible.value = false);
 const onToggle = () => (visible.value = !visible.value);
 
-const wrapper = ref<HTMLDivElement>();
+const dropDownWrapper = ref<HTMLDivElement>();
 
-onClickOutside(wrapper, () => {
+onClickOutside(dropDownWrapper, () => {
   if (!visible.value) return;
   visible.value = false;
 });
 </script>
 
 <template>
-  <div class="flex items-center justify-between h-full mx-4 z-10" ref="wrapper">
+  <div class="flex items-center justify-between h-full mx-4" ref="dropDownWrapper">
     <IconButton description="Open Menu" :handleClick="onToggle">
-      <Bars3Icon class="w-6 h-6" />
+      <Bars3Icon class="w-6 h-6 dark:text-iconsDark" />
     </IconButton>
     <SearchInput :text="query" @onChanged="updateQuery" />
   </div>

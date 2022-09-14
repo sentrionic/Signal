@@ -5,6 +5,8 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { AppService } from './app.service';
 import { ConfigSchema } from './common/schema/config.schema';
 import { FriendsModule } from './friends/friends.module';
+import { ChatsModule } from './chats/chats.module';
+import { GroupsModule } from './groups/groups.module';
 import { MessagesModule } from './messages/messages.module';
 
 @Module({
@@ -15,6 +17,8 @@ import { MessagesModule } from './messages/messages.module';
     MikroOrmModule.forRoot(),
     UsersModule,
     FriendsModule,
+    ChatsModule,
+    GroupsModule,
     MessagesModule,
   ],
   controllers: [],

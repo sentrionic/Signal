@@ -23,12 +23,12 @@ defineProps<IFormFieldProps>();
       :name="name"
       :id="name"
       :autocomplete="autocomplete"
-      :class="error ? 'border-red-700' : 'border-gray-300'"
+      :class="error ? 'border-red-700 dark:text-red-500' : 'border-gray-300'"
       class="form-input"
       :placeholder="placeholder"
     >
     </Field>
-    <p v-if="error" class="mt-2 text-red-700">
+    <p v-if="error" class="mt-2 text-red-700 dark:text-red-500">
       {{ error }}
     </p>
   </div>
@@ -36,6 +36,6 @@ defineProps<IFormFieldProps>();
 
 <style>
 .form-input {
-  @apply bg-gray-50 border border-gray-300 text-gray-900  rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
+  @apply bg-gray-50 border border-gray-300 text-gray-900  rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-formDark dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500;
 }
 </style>

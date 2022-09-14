@@ -6,12 +6,12 @@ import { UpdateSchema } from '@/lib/validation/user.schema';
 import { toErrorMap } from '@/lib/utils/toErrorMap';
 import { ref } from 'vue';
 import { useToast } from '@/lib/composable/useToast';
-import type { FieldError } from '@/lib/api/models';
 import FormField from '@/components/form/FormField.vue';
 import FormButton from '@/components/form/FormButton.vue';
 import SuccessErrorToast from '@/components/common/SuccessErrorToast.vue';
 import { updateAccount } from '@/lib/api/handler/account';
 import { useClipboard } from '@vueuse/core';
+import type { FieldError } from '@/lib/api';
 
 const { user, updateUser } = useUserStore();
 
