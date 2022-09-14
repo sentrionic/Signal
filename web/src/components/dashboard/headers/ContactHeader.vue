@@ -18,7 +18,7 @@ const handdleBack = () => {
 <template>
   <div class="flex items-center justify-between h-full mx-4">
     <IconButton description="Go Back" :handleClick="handdleBack">
-      <ArrowLeftIcon class="w-6 h-6" />
+      <ArrowLeftIcon class="w-6 h-6 dark:text-iconsDark" />
     </IconButton>
     <SearchInput :text="query" @onChanged="updateQuery" />
   </div>

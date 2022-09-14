@@ -1,3 +1,6 @@
-export interface AddRequestDto {
-  username: string;
+import { ApiProperty } from '@nestjs/swagger';
+
+export class AddRequestDto {
+  @ApiProperty({ type: String })
+  username!: string;
 }

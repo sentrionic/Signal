@@ -14,7 +14,6 @@
   grid-column-start: main;
   grid-row-end: main;
   grid-column-end: main;
-  border: 1px solid;
-  border-color: black;
+  @apply border border-borderLight dark:border-borderDark bg-slate-100 dark:bg-black;
 }
 </style>

@@ -3,4 +3,5 @@ export enum SidebarMode {
   REQUESTS,
   MESSAGES,
   SETTINGS,
+  CREATE_GROUP,
 }

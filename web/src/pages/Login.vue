@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { LoginUser } from '../lib/api/models';
 import { useUserStore } from '@/stores/userStore';
 import type { HTTPError } from 'ky';
 import router from '@/router';
@@ -10,8 +9,9 @@ import FormField from '../components/form/FormField.vue';
 import FormHeader from '../components/form/FormHeader.vue';
 import FormButton from '../components/form/FormButton.vue';
 import { login } from '@/lib/api/handler/account';
+import type { LoginInput } from '@/lib/api';
 
-const { errors, values, setFieldError, isSubmitting } = useForm<LoginUser>({
+const { errors, values, setFieldError, isSubmitting } = useForm<LoginInput>({
   validationSchema: LoginSchema,
 });
 
@@ -61,7 +61,7 @@ export default {
         Don't have an account yet?
         <router-link
           to="register"
-          class="font-medium text-primary-600 hover:underline dark:text-primary-500"
+          class="font-medium text-primary-600 hover:underline dark:text-primary-400"
           >Sign up
         </router-link>
       </p>

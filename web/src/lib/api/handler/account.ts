@@ -1,11 +1,11 @@
+import type { Account, LoginInput, RegisterInput } from '..';
 import { handler } from '../handler';
-import type { Account, LoginUser, RegisterUser } from '../models';
 
-export const login = async (input: LoginUser): Promise<Account> => {
+export const login = async (input: LoginInput): Promise<Account> => {
   return await handler.post('accounts/login', { json: { ...input } }).json<Account>();
 };
 
-export const register = async (input: RegisterUser): Promise<Account> => {
+export const register = async (input: RegisterInput): Promise<Account> => {
   return await handler.post('accounts', { json: { ...input } }).json<Account>();
 };
 

@@ -11,7 +11,7 @@ defineProps<{ description: string; handleClick: () => void }>();
 
 <style>
 .btn {
-  @apply hover:bg-zinc-100 focus:outline-none font-medium rounded-full p-2 text-center inline-flex items-center dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:focus:ring-blue-800;
+  @apply hover:bg-zinc-100 dark:hover:bg-hoverDark focus:outline-none font-medium rounded-full p-2 text-center inline-flex items-center;
   color: #707579;
 }
 </style>

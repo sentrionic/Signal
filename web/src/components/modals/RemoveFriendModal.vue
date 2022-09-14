@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Friend } from '@/lib/api/models';
+import type { UserResponse } from '@/lib/api/index';
 import ModalWrapper from './ModalWrapper.vue';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 import { removeFriend } from '@/lib/api/handler/friends';
@@ -7,7 +7,7 @@ import { useQueryClient } from 'vue-query';
 import { fKey } from '@/lib/composable/useFriendsQuery';
 
 const props = defineProps<{
-  user: Friend;
+  user: UserResponse;
   onClose: () => void;
 }>();
 
@@ -16,7 +16,7 @@ const cache = useQueryClient();
 const handleSubmit = async () => {
   try {
     await removeFriend(props.user.id);
-    cache.setQueryData<Friend[]>(fKey, (old) => [
+    cache.setQueryData<UserResponse[]>(fKey, (old) => [
       ...(old?.filter((f) => f.id !== props.user.id) || []),
     ]);
     props.onClose();

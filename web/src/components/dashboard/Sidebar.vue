@@ -10,6 +10,8 @@ import MessageSidebar from './sidebar/MessageSidebar.vue';
 import ContactSidebar from './sidebar/ContactSidebar.vue';
 import SettingsSidebar from './sidebar/SettingsSidebar.vue';
 import RequestsSidebar from './sidebar/RequestsSidebar.vue';
+import CreateGroupHeader from './headers/CreateGroupHeader.vue';
+import CreateGroupSidebar from './sidebar/CreateGroupSidebar.vue';
 
 const store = useSidebarStore();
 const { mode } = storeToRefs(store);
@@ -22,17 +24,19 @@ export default {
 </script>
 
 <template>
-  <div class="z-10 sidebar-header">
+  <div class="sidebar-header">
     <MessageHeader v-if="mode === SidebarMode.MESSAGES" />
     <ContactHeader v-if="mode === SidebarMode.CONTACTS" />
     <SettingsHeader v-if="mode === SidebarMode.SETTINGS" />
     <RequestHeader v-if="mode === SidebarMode.REQUESTS" />
+    <CreateGroupHeader v-if="mode === SidebarMode.CREATE_GROUP" />
   </div>
   <div class="sidebar">
     <MessageSidebar v-if="mode === SidebarMode.MESSAGES" />
     <ContactSidebar v-if="mode === SidebarMode.CONTACTS" />
     <SettingsSidebar v-if="mode === SidebarMode.SETTINGS" />
     <RequestsSidebar v-if="mode === SidebarMode.REQUESTS" />
+    <CreateGroupSidebar v-if="mode === SidebarMode.CREATE_GROUP" />
   </div>
 </template>
 
@@ -43,5 +47,9 @@ export default {
   grid-row-end: sidebar;
   grid-column-end: sidebar;
   padding: 0.5rem;
+}
+
+.sidebar-header {
+  z-index: 8;
 }
 </style>
