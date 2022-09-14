@@ -5,10 +5,12 @@ export default {
 </script>
 
 <template>
-  <section class="bg-gray-50 dark:bg-gray-900">
+  <section class="bg-gray-50 dark:bg-formDark">
     <div class="flex flex-col items-center justify-center mx-auto md:h-screen lg:py-0">
       <div class="container mx-auto flex py-20 items-center justify-center flex-col">
-        <div class="bg-white flex p-20 items-center justify-center flex-col xl:shadow-lg">
+        <div
+          class="bg-white dark:bg-bgDark flex p-20 items-center justify-center flex-col xl:shadow-lg"
+        >
           <img
             class="lg:w-2/6 mb-10 object-cover object-center rounded"
             alt="Logo"

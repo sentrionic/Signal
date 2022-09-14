@@ -28,13 +28,13 @@ const handleLogout = async () => {
 <template>
   <div class="flex items-center justify-between h-full mx-4">
     <IconButton description="Go Back" :handleClick="handdleBack">
-      <ArrowLeftIcon class="w-6 h-6" />
+      <ArrowLeftIcon class="w-6 h-6 dark:text-iconsDark" />
     </IconButton>
     <div class="relative w-full ml-4">
       <h1 class="text-xl font-bold dark:text-white">Edit Profile</h1>
     </div>
     <IconButton description="Logout" :handleClick="handleLogout">
-      <ArrowRightOnRectangleIcon class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+      <ArrowRightOnRectangleIcon class="w-5 h-5 text-gray-500 dark:text-iconsDark" />
     </IconButton>
   </div>
 </template>

@@ -1,8 +1,8 @@
 import { handler } from '../handler';
-import type { Request } from '../models';
+import type { RequestResponse } from '../index';
 
-export const getRequests = async (): Promise<Request[]> => {
-  return await handler.get('requests').json<Request[]>();
+export const getRequests = async (): Promise<RequestResponse[]> => {
+  return await handler.get('requests').json<RequestResponse[]>();
 };
 
 export const sendRequest = async (username: string): Promise<boolean> => {

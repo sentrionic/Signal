@@ -22,7 +22,7 @@ const handleSubmit = async () => {
     const error = err as HTTPError;
     if (error.response.status === 404)
       setFieldError('username', 'A user with that name does not exist');
-    else setFieldError('email', 'Server Error');
+    else setFieldError('username', 'Server Error');
   }
 };
 </script>

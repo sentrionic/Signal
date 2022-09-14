@@ -16,7 +16,7 @@ const handleSelectMode = (mode: SidebarMode) => {
 
 <template>
   <div
-    class="w-64 bg-white rounded divide-y divide-gray-100 dark:bg-gray-700 ml-2 mt-2 shadow-lg p-1"
+    class="w-64 bg-white rounded divide-y divide-gray-100 dark:bg-menuDark ml-2 mt-2 shadow-lg p-1"
   >
     <ul class="py-1 dark:text-gray-200 font-semibold">
       <DropdownMenuItem

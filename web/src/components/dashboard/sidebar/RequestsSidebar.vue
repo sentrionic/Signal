@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RequestType, type Request } from '../../../lib/api/models';
 import IconButton from '../../common/IconButton.vue';
 import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { acceptRequest, removeRequest } from '@/lib/api/handler/requests';
@@ -8,6 +7,7 @@ import { rKey, useRequestsQuery } from '@/lib/composable/useRequestsQuery';
 import { computed } from 'vue';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
+import { RequestType, type RequestResponse } from '@/lib/api';
 
 const { data } = useRequestsQuery();
 const store = useSidebarStore();
@@ -21,7 +21,9 @@ const getType = (type: RequestType): string => {
 const handleAccept = async (id: string) => {
   try {
     await acceptRequest(id);
-    cache.setQueryData<Request[]>(rKey, (old) => [...(old?.filter((r) => r.user.id !== id) || [])]);
+    cache.setQueryData<RequestResponse[]>(rKey, (old) => [
+      ...(old?.filter((r) => r.user.id !== id) || []),
+    ]);
   } catch (err) {
     console.log(err);
   }
@@ -30,7 +32,9 @@ const handleAccept = async (id: string) => {
 const handleRemove = async (id: string) => {
   try {
     await removeRequest(id);
-    cache.setQueryData<Request[]>(rKey, (old) => [...(old?.filter((r) => r.user.id !== id) || [])]);
+    cache.setQueryData<RequestResponse[]>(rKey, (old) => [
+      ...(old?.filter((r) => r.user.id !== id) || []),
+    ]);
   } catch (err) {
     console.log(err);
   }

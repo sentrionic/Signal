@@ -3,6 +3,13 @@ import ChatHeader from '../components/dashboard/ChatHeader.vue';
 import ChatFooter from '../components/dashboard/ChatFooter.vue';
 import ChatBody from '../components/dashboard/ChatBody.vue';
 import Sidebar from '../components/dashboard/Sidebar.vue';
+import ChatInfo from '../components/dashboard/ChatInfo.vue';
+import ChatInfoHeader from '../components/dashboard/headers/ChatInfoHeader.vue';
+import { useInfoStore } from '@/stores/infoStore';
+import { storeToRefs } from 'pinia';
+
+const store = useInfoStore();
+const { isVisible } = storeToRefs(store);
 </script>
 
 <script lang="ts">
@@ -12,21 +19,79 @@ export default {
 </script>
 
 <template>
-  <div class="app-layout">
+  <div :class="isVisible ? 'app-layout' : 'app-layout-slim'">
     <ChatHeader />
     <Sidebar />
     <ChatBody />
     <ChatFooter />
+    <ChatInfoHeader v-if="isVisible" />
+    <ChatInfo v-if="isVisible" />
   </div>
 </template>
 
 <style>
-.app-layout {
-  display: grid;
-  grid-template:
-    'sidebar-header header' 56px
-    'sidebar main' 1fr
-    'sidebar footer' 75px / 420px 1fr;
-  height: 100vh;
+@media (min-width: 0px) {
+  .app-layout-slim {
+    display: grid;
+    grid-template:
+      'sidebar-header header info-header' 56px
+      'sidebar main info' 1fr
+      'sidebar footer info' 75px / 300px 1fr;
+    height: 100vh;
+
+    @apply bg-white dark:bg-bgDark;
+  }
+}
+
+@media (min-width: 1000px) {
+  .app-layout-slim {
+    display: grid;
+    grid-template:
+      'sidebar-header header info-header' 56px
+      'sidebar main info' 1fr
+      'sidebar footer info' 75px / 420px 1fr;
+    height: 100vh;
+
+    @apply bg-white dark:bg-bgDark;
+  }
+}
+
+@media (min-width: 0px) {
+  .app-layout {
+    display: grid;
+    grid-template:
+      'sidebar-header header info-header' 56px
+      'sidebar main info' 1fr
+      'sidebar footer info' 75px / 200px 1fr 200px;
+    height: 100vh;
+
+    @apply bg-white dark:bg-bgDark;
+  }
+}
+
+@media (min-width: 800px) {
+  .app-layout {
+    display: grid;
+    grid-template:
+      'sidebar-header header info-header' 56px
+      'sidebar main info' 1fr
+      'sidebar footer info' 75px / 300px 1fr 300px;
+    height: 100vh;
+
+    @apply bg-white dark:bg-bgDark;
+  }
+}
+
+@media (min-width: 1200px) {
+  .app-layout {
+    display: grid;
+    grid-template:
+      'sidebar-header header info-header' 56px
+      'sidebar main info' 1fr
+      'sidebar footer info' 75px / 420px 1fr 420px;
+    height: 100vh;
+
+    @apply bg-white dark:bg-bgDark;
+  }
 }
 </style>

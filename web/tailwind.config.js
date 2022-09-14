@@ -20,6 +20,13 @@ module.exports = {
           800: '#1f2937',
           900: '#111827',
         },
+        iconsDark: '#aaa',
+        borderLight: '#dfe1e5',
+        borderDark: '#0f0f0f',
+        hoverDark: '#2b2b2b',
+        bgDark: '#212121',
+        menuDark: '#222222',
+        formDark: '#181818',
       },
     },
     fontFamily: {

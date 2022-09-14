@@ -16,6 +16,7 @@ import { RequestResponse } from '../src/friends/dto/request.response';
 import { RequestType } from '../src/friends/entities/request.enum';
 import { v4 } from 'uuid';
 import { UserResponse } from '../src/friends/dto/user.response';
+import { login } from './helpers';
 
 describe('FriendsController (e2e)', () => {
   let app: NestExpressApplication;
@@ -69,7 +70,7 @@ describe('FriendsController (e2e)', () => {
     });
 
     it('should successfully return a list of requests for the current user', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server).get('/api/requests').set('Cookie', session);
       expect(status).toEqual(200);
@@ -83,6 +84,7 @@ describe('FriendsController (e2e)', () => {
       expect(user?.displayName).toBeDefined();
       expect(user?.image).toBeDefined();
       expect(user?.bio).toBeDefined();
+      expect(user?.lastOnline).toBeDefined();
 
       expect(result.filter((e) => e.type === RequestType.INCOMING).length).toEqual(4);
       expect(result.filter((e) => e.type === RequestType.OUTGOING).length).toEqual(3);
@@ -96,7 +98,7 @@ describe('FriendsController (e2e)', () => {
 
   describe('[ADD_REQUEST] - /api/requests/ (POST)', () => {
     it('should successfully send a friends request to the other user', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post('/api/requests')
@@ -117,7 +119,7 @@ describe('FriendsController (e2e)', () => {
       current.friends.add(receiver);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post('/api/requests')
@@ -135,7 +137,7 @@ describe('FriendsController (e2e)', () => {
       receiver.outgoingRequests.add(current);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post('/api/requests')
@@ -157,7 +159,7 @@ describe('FriendsController (e2e)', () => {
     });
 
     it('should throw a BadRequestException if no valid username is provided', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post('/api/requests')
@@ -183,7 +185,7 @@ describe('FriendsController (e2e)', () => {
       current.incomingRequests.add(receiver);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post(`/api/requests/${receiver.id}/accept`)
@@ -202,7 +204,7 @@ describe('FriendsController (e2e)', () => {
       receiver.incomingRequests.add(current);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post(`/api/requests/${receiver.id}/accept`)
@@ -229,7 +231,7 @@ describe('FriendsController (e2e)', () => {
       current.incomingRequests.add(receiver);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post(`/api/requests/${receiver.id}/remove`)
@@ -248,7 +250,7 @@ describe('FriendsController (e2e)', () => {
       current.outgoingRequests.add(receiver);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post(`/api/requests/${receiver.id}/remove`)
@@ -264,7 +266,7 @@ describe('FriendsController (e2e)', () => {
     });
 
     it('should return true even if no request exists', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .post(`/api/requests/${receiver.id}/remove`)
@@ -295,7 +297,7 @@ describe('FriendsController (e2e)', () => {
     });
 
     it('should successfully return a list of friends for the current user', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server).get('/api/friends').set('Cookie', session);
       expect(status).toEqual(200);
@@ -323,7 +325,7 @@ describe('FriendsController (e2e)', () => {
       current.friends.add(receiver);
       await em.flush();
 
-      const session = await login();
+      const session = await login(server, current);
 
       const { body, status } = await request(server)
         .delete(`/api/friends/${receiver.id}`)
@@ -339,7 +341,7 @@ describe('FriendsController (e2e)', () => {
     });
 
     it('should return true even when they were not friends', async () => {
-      const session = await login();
+      const session = await login(server, current);
 
       const { status } = await request(server)
         .delete(`/api/friends/${receiver.id}`)
@@ -353,18 +355,6 @@ describe('FriendsController (e2e)', () => {
       expect(status).toEqual(403);
     });
   });
-
-  const login = async (): Promise<string> => {
-    const { headers } = await request(server).post('/api/accounts/login').send({
-      email: current.email,
-      password: 'password',
-    });
-
-    const session = headers['set-cookie'][0];
-    expect(session).toBeDefined();
-
-    return session;
-  };
 
   afterEach(async () => {
     await service.clearDatabase();

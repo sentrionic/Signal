@@ -1,8 +1,8 @@
+import type { UserResponse } from '..';
 import { handler } from '../handler';
-import type { Friend } from '../models';
 
-export const getFriends = async (): Promise<Friend[]> => {
-  return await handler.get('friends').json<Friend[]>();
+export const getFriends = async (): Promise<UserResponse[]> => {
+  return await handler.get('friends').json<UserResponse[]>();
 };
 
 export const removeFriend = async (id: string): Promise<void> => {
