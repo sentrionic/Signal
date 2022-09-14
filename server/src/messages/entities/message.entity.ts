@@ -5,6 +5,7 @@ import { Attachment } from './attachment.entity';
 import { Chat } from '../../chats/entities/chat.entity';
 import { Group } from '../../groups/entities/group.entity';
 import { MessageType } from './message-type.enum';
+import { MessageResponse } from '../dto/message.response';
 
 @Entity()
 export class Message {
@@ -40,9 +41,21 @@ export class Message {
   @Property({ type: 'date' })
   seenAt?: Date;
 
-  constructor(user: User, type: MessageType) {
+  constructor(user: User) {
     this.id = v4();
     this.user = user;
-    this.type = type;
+    this.type = MessageType.TEXT;
+  }
+
+  toResponse(): MessageResponse {
+    return {
+      id: this.id,
+      type: this.type,
+      attachment: this.attachment?.toResponse(),
+      deliveredAt: this.deliveredAt?.toISOString(),
+      sentAt: this.sentAt.toISOString(),
+      seenAt: this.seenAt?.toISOString(),
+      user: this.user.toUserResponse(),
+    };
   }
 }

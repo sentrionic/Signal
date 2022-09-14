@@ -22,9 +22,9 @@ export class MessageResponse {
   @ApiProperty({ type: String })
   sentAt!: string;
 
-  @ApiProperty({ type: String })
-  deliveredAt!: string;
+  @ApiProperty({ type: String, nullable: true })
+  deliveredAt?: string | null;
 
-  @ApiProperty({ type: String })
-  seenAt!: string;
+  @ApiProperty({ type: String, nullable: true })
+  seenAt?: string;
 }

@@ -31,6 +31,25 @@ export class FilesService {
     return response.Location;
   }
 
+  async uploadImage(directory: string, filename: string, image: BufferFile): Promise<string> {
+    const { buffer, mimetype } = await image;
+
+    const key = `files/${directory}/${filename}`;
+
+    const params = {
+      Bucket: this.configService.get('AWS_STORAGE_BUCKET_NAME'),
+      Key: key,
+      Body: buffer,
+      ContentType: mimetype,
+    };
+
+    const s3 = new S3();
+
+    const response = await s3.upload(params).promise();
+
+    return response.Location;
+  }
+
   async deleteFile(filename: string): Promise<void> {
     const index = filename.indexOf('files');
     const key = filename.slice(index);
@@ -65,6 +84,7 @@ export class FilesService {
     const name = file.name;
     const ext = file.ext;
     const cleanFileName = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    return `${cleanFileName}${ext}`;
+    const date = Date.now();
+    return `${date}-${cleanFileName}${ext}`;
   }
 }

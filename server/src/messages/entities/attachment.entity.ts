@@ -1,6 +1,7 @@
 import { Entity, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { Message } from './message.entity';
 import { v4 } from 'uuid';
+import { AttachmentResponse } from '../dto/attachment.response';
 
 @Entity()
 export class Attachment {
@@ -27,5 +28,13 @@ export class Attachment {
     this.filetype = filetype;
     this.filename = filename;
     this.message = message;
+  }
+
+  toResponse(): AttachmentResponse {
+    return {
+      url: this.url,
+      filename: this.filename,
+      filetype: this.filetype,
+    };
   }
 }
