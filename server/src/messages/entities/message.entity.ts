@@ -3,7 +3,6 @@ import { v4 } from 'uuid';
 import { User } from '../../users/entities/user.entity';
 import { Attachment } from './attachment.entity';
 import { Chat } from '../../chats/entities/chat.entity';
-import { Group } from '../../groups/entities/group.entity';
 import { MessageType } from './message-type.enum';
 import { MessageResponse } from '../dto/message.response';
 
@@ -20,9 +19,6 @@ export class Message {
 
   @ManyToOne({ nullable: true })
   chat?: Chat;
-
-  @ManyToOne({ nullable: true })
-  group?: Group;
 
   @ManyToOne()
   user: User;

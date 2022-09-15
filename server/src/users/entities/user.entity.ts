@@ -13,7 +13,7 @@ import { v4 } from 'uuid';
 import * as argon2 from 'argon2';
 import { Account } from '../dto/account.response';
 import { UserResponse } from '../../friends/dto/user.response';
-import { Group } from '../../groups/entities/group.entity';
+import { Chat } from '../../chats/entities/chat.entity';
 
 @Entity()
 export class User {
@@ -63,8 +63,8 @@ export class User {
   @ManyToMany({ hidden: true })
   friends = new Collection<User>(this);
 
-  @ManyToMany(() => Group, (g) => g.members, { hidden: true })
-  groups = new Collection<Group>(this);
+  @ManyToMany(() => Chat, (c) => c.members, { hidden: true })
+  chats = new Collection<Chat>(this);
 
   constructor(email: string, displayName: string, password: string) {
     this.id = v4();

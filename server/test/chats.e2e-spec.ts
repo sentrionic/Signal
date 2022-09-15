@@ -15,6 +15,8 @@ import { login } from './helpers';
 import { Chat } from '../src/chats/entities/chat.entity';
 import { ChatResponse } from '../src/chats/dto/chat.response';
 import { UsersModule } from '../src/users/users.module';
+import { ChatType } from '../src/chats/entities/chat-type.enum';
+import { Group } from '../src/groups/entities/group.entity';
 
 describe('ChatsController (e2e)', () => {
   let app: NestExpressApplication;
@@ -59,11 +61,16 @@ describe('ChatsController (e2e)', () => {
 
       for (let i = 0; i < 10; i++) {
         const u = new User(`user-${i}@example.com`, `User #${i}`, 'password');
-        const c = new Chat();
+        const c = i % 3 === 0 ? new Chat(ChatType.GROUP_CHAT) : new Chat(ChatType.DIRECT_CHAT);
         if (i % 2 === 0) {
           c.members.add(current);
           c.members.add(u);
         }
+
+        if (c.type === ChatType.GROUP_CHAT) {
+          c.group = new Group(`Group #${i}`);
+        }
+
         chats.push(c);
         users.push(u);
       }
@@ -79,8 +86,11 @@ describe('ChatsController (e2e)', () => {
       expect(body.length).toEqual(5);
 
       const result = body as ChatResponse[];
-      expect(result[0]?.id).toBeDefined();
-      const user = result.at(0)?.user;
+
+      const directChat = result[1];
+      expect(directChat.id).toBeDefined();
+      expect(directChat.type).toEqual(ChatType.DIRECT_CHAT);
+      const user = directChat?.user;
       expect(user).toBeDefined();
       expect(user?.id).toBeDefined();
       expect(user?.username).toBeDefined();
@@ -88,6 +98,16 @@ describe('ChatsController (e2e)', () => {
       expect(user?.image).toBeDefined();
       expect(user?.bio).toBeDefined();
       expect(user?.lastOnline).toBeDefined();
+
+      const groupChat = result[3];
+      expect(groupChat.id).toBeDefined();
+      expect(groupChat.type).toEqual(ChatType.GROUP_CHAT);
+      const group = groupChat?.group;
+      expect(group).toBeDefined();
+      expect(group?.id).toBeDefined();
+      expect(group?.name).toBeDefined();
+      expect(group?.image).toBeDefined();
+      expect(group?.memberCount).toEqual(2);
     });
 
     it('should throw an UnauthorizedException when no session is provided', async () => {
@@ -99,7 +119,7 @@ describe('ChatsController (e2e)', () => {
   describe('[GET_OR_CREATE_CHAT] - /api/chats/ (POST)', () => {
     it('should successfully return the chat between the two users if it already exists', async () => {
       const contact = new User('contact@example.com', 'Contact', 'password');
-      const chat = new Chat();
+      const chat = new Chat(ChatType.DIRECT_CHAT);
       chat.members.add(contact);
       chat.members.add(current);
       await em.persistAndFlush([chat, contact]);
@@ -112,6 +132,7 @@ describe('ChatsController (e2e)', () => {
         .send({ contactID: contact.id });
       expect(status).toEqual(201);
       expect(body.id).toBeDefined();
+      expect(body.type).toEqual(ChatType.DIRECT_CHAT);
 
       const user = body.user;
 
@@ -140,6 +161,7 @@ describe('ChatsController (e2e)', () => {
         .send({ contactID: contact.id });
       expect(status).toEqual(201);
       expect(body.id).toBeDefined();
+      expect(body.type).toEqual(ChatType.DIRECT_CHAT);
 
       const user = body.user;
 

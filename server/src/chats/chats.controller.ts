@@ -11,30 +11,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { GroupsService } from '../groups/groups.service';
-import { GroupChatResponse } from '../groups/dto/group-chat.response';
 
 @Controller('chats')
 @UseGuards(AuthGuard)
 @ApiTags('Chat Operation')
 export class ChatsController {
-  constructor(
-    private readonly chatsService: ChatsService,
-    private readonly groupService: GroupsService,
-  ) {}
-
-  @Get('all')
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Get current user's chats and groups" })
-  @ApiOkResponse({ description: 'List of chats', type: GroupChatResponse })
-  async getChatsAndGroups(@GetUserId() id: string): Promise<GroupChatResponse> {
-    const [chats, groups] = await Promise.all([
-      this.chatsService.getUserChats(id),
-      this.groupService.getUserGroups(id),
-    ]);
-
-    return { chats, groups };
-  }
+  constructor(private readonly chatsService: ChatsService) {}
 
   @Get()
   @ApiCookieAuth()

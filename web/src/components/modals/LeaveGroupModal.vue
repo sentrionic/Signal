@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GroupChatResponse, GroupResponse } from '@/lib/api/index';
+import type { ChatResponse, GroupResponse } from '@/lib/api/index';
 import ModalWrapper from './ModalWrapper.vue';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 import { leaveGroup } from '@/lib/api/handler/groups';
@@ -8,6 +8,7 @@ import { cKey } from '@/lib/composable/useChatsQuery';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{
+  chatId: string;
   group: GroupResponse;
   onClose: () => void;
 }>();
@@ -17,13 +18,10 @@ const router = useRouter();
 
 const handleSubmit = async () => {
   try {
-    await leaveGroup(props.group.id);
-    cache.setQueryData<GroupChatResponse>(cKey, (old) => {
-      if (!old) return { groups: [], chats: [] };
-      return {
-        groups: [...old.groups.filter((g) => g.id !== props.group.id)],
-        chats: [...old.chats],
-      };
+    await leaveGroup(props.chatId);
+    cache.setQueryData<ChatResponse[]>(cKey, (old) => {
+      if (!old) return [];
+      return [...old.filter((c) => c.id !== props.chatId)];
     });
     props.onClose();
     router.push({ name: 'dashboard' });

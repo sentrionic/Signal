@@ -7,7 +7,7 @@ import LeaveGroupModal from '../modals/LeaveGroupModal.vue';
 import IconButton from '../common/IconButton.vue';
 import { EllipsisVerticalIcon } from '@heroicons/vue/24/solid';
 
-const props = defineProps<{ current: GroupResponse; showMenu: boolean }>();
+const props = defineProps<{ chatId: string; current: GroupResponse; showMenu: boolean }>();
 const emits = defineEmits<{
   (event: 'toggleVisibility'): void;
   (event: 'onHide'): void;
@@ -60,7 +60,7 @@ const handleLeave = () => {
       </p>
     </div>
   </div>
-  <div>
+  <div class="relative">
     <IconButton class="mx-4" description="Open Menu" :handleClick="() => emits('onToggle')">
       <EllipsisVerticalIcon class="w-6 h-6 text-black dark:text-white" />
     </IconButton>
@@ -73,10 +73,11 @@ const handleLeave = () => {
         @handleLeave="handleLeave"
       />
     </transition>
-    <AddMemberModal v-if="showAddModal" :groupId="current.id" :onClose="() => toggleAddModal()" />
+    <AddMemberModal v-if="showAddModal" :chatId="chatId" :onClose="() => toggleAddModal()" />
     <LeaveGroupModal
       v-if="showLeaveModal"
-      :group="(current as GroupResponse)"
+      :chatId="chatId"
+      :group="current"
       :onClose="() => toggleLeaveModal()"
     />
   </div>

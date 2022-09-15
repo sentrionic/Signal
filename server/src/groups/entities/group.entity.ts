@@ -1,8 +1,8 @@
-import { Collection, Entity, ManyToMany, PrimaryKey, Property } from '@mikro-orm/core';
+import { Entity, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import * as md5 from 'md5';
 import { v4 } from 'uuid';
-import { User } from '../../users/entities/user.entity';
 import { GroupResponse } from '../dto/group.response';
+import { Chat } from '../../chats/entities/chat.entity';
 
 @Entity()
 export class Group {
@@ -18,16 +18,8 @@ export class Group {
   @Property({ type: 'date' })
   createdAt = new Date();
 
-  @ManyToMany({
-    entity: () => User,
-    inversedBy: (u) => u.groups,
-    owner: true,
-    pivotTable: 'user_to_groups',
-    joinColumn: 'group_id',
-    inverseJoinColumn: 'user_id',
-    hidden: true,
-  })
-  members = new Collection<User>(this);
+  @OneToOne(() => Chat, (chat) => chat.group)
+  chat!: Chat;
 
   constructor(name: string) {
     this.id = v4();
@@ -40,13 +32,13 @@ export class Group {
     return `https://gravatar.com/avatar/${md5(name)}?d=identicon`;
   }
 
-  toGroupResponse(): GroupResponse {
+  toGroupResponse(memberCount: number): GroupResponse {
     return {
       id: this.id,
       name: this.name,
       image: this.image,
       createdAt: this.createdAt.toISOString(),
-      memberCount: this.members.count(),
+      memberCount,
     };
   }
 }

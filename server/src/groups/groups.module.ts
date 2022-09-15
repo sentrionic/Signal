@@ -4,9 +4,10 @@ import { GroupsController } from './groups.controller';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { User } from '../users/entities/user.entity';
 import { Group } from './entities/group.entity';
+import { Chat } from '../chats/entities/chat.entity';
 
 @Module({
-  imports: [MikroOrmModule.forFeature({ entities: [User, Group] })],
+  imports: [MikroOrmModule.forFeature({ entities: [User, Chat, Group] })],
   controllers: [GroupsController],
   providers: [GroupsService],
 })

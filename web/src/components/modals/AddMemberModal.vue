@@ -8,7 +8,7 @@ import FormField from '../form/FormField.vue';
 import ModalWrapper from './ModalWrapper.vue';
 
 const props = defineProps<{
-  groupId: string;
+  chatId: string;
   onClose: () => void;
 }>();
 
@@ -18,7 +18,7 @@ const { errors, values, setFieldError } = useForm<AddUserDto>({
 
 const handleSubmit = async () => {
   try {
-    await addMemberToGroup(props.groupId, values);
+    await addMemberToGroup(props.chatId, values);
     props.onClose();
   } catch (err) {
     const error = err as HTTPError;

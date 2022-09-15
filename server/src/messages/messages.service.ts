@@ -11,7 +11,6 @@ import { User } from '../users/entities/user.entity';
 import { EntityRepository } from '@mikro-orm/core';
 import { Message } from './entities/message.entity';
 import { Chat } from '../chats/entities/chat.entity';
-import { Group } from '../groups/entities/group.entity';
 import { Attachment } from './entities/attachment.entity';
 import { BufferFile } from '../common/types/buffer.file';
 import { FilesService } from '../files/file.service';
@@ -27,14 +26,12 @@ export class MessagesService {
     private messageRepository: EntityRepository<Message>,
     @InjectRepository(Chat)
     private chatRepository: EntityRepository<Chat>,
-    @InjectRepository(Group)
-    private groupRepository: EntityRepository<Group>,
     @InjectRepository(Attachment)
     private attachmentRepository: EntityRepository<Attachment>,
     private filesService: FilesService,
   ) {}
 
-  async createChatMessage(
+  async createMessage(
     userId: string,
     chatId: string,
     input: CreateMessageDto,
@@ -83,94 +80,7 @@ export class MessagesService {
     return true;
   }
 
-  async createGroupMessage(
-    userId: string,
-    groupId: string,
-    input: CreateMessageDto,
-    file?: BufferFile,
-  ): Promise<boolean> {
-    const group = await this.groupRepository.findOne({ id: groupId }, { populate: ['members'] });
-
-    if (!group) {
-      throw new NotFoundException();
-    }
-
-    const user = await this.userRepository.findOne({ id: userId });
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    if (!group.members.contains(user)) {
-      throw new UnauthorizedException();
-    }
-
-    const text = input.text;
-
-    if (!file && !text) {
-      throw new BadRequestException({ message: 'Either a message or a file is required' });
-    }
-
-    const message = new Message(user);
-    message.group = group;
-
-    if (file) {
-      const { originalname, mimetype } = await file;
-      const filename = this.filesService.formatName(originalname);
-      const directory = `channels/${groupId}`;
-      const url = await this.filesService.uploadImage(directory, filename, file);
-      const attachment = new Attachment(url, mimetype, filename, message);
-      await this.attachmentRepository.persistAndFlush(attachment);
-      message.attachment = attachment;
-      message.type = MessageType.IMAGE;
-    } else if (text) {
-      message.text = text;
-    }
-
-    await this.messageRepository.persistAndFlush(message);
-
-    return true;
-  }
-
-  async getGroupMessages(
-    userId: string,
-    id: string,
-    cursor?: string | null,
-  ): Promise<MessageResponse[]> {
-    const user = await this.userRepository.findOne({ id: userId });
-
-    if (!user) {
-      throw new NotFoundException();
-    }
-
-    const group = await this.groupRepository.findOne({ id }, { populate: ['members'] });
-
-    if (!group) {
-      throw new NotFoundException();
-    }
-
-    if (!group.members.contains(user)) {
-      throw new UnauthorizedException();
-    }
-
-    const query: Record<string, unknown> = {
-      group: { id },
-    };
-
-    if (cursor) {
-      query.sentAt = { $lt: new Date(cursor) };
-    }
-
-    const messages = await this.messageRepository.find(query, {
-      populate: ['user', 'attachment'],
-      limit: 35,
-      orderBy: [{ sentAt: 'DESC' }],
-    });
-
-    return messages.map((m) => m.toResponse());
-  }
-
-  async getChatMessages(
+  async getMessages(
     userId: string,
     id: string,
     cursor?: string | null,

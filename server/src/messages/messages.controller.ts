@@ -37,7 +37,7 @@ import { BufferFile } from '../common/types/buffer.file';
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}
 
-  @Get('chats/:chatId')
+  @Get(':chatId')
   @ApiOperation({ summary: 'Get Chat Messages' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @ApiCookieAuth()
@@ -47,23 +47,10 @@ export class MessagesController {
     @GetUserId() userId: string,
     @Query('cursor') cursor?: string | null,
   ): Promise<MessageResponse[]> {
-    return this.messagesService.getChatMessages(userId, chatId, cursor);
+    return this.messagesService.getMessages(userId, chatId, cursor);
   }
 
-  @Get('groups/:groupId')
-  @ApiOperation({ summary: 'Get Group Messages' })
-  @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
-  @ApiCookieAuth()
-  @ApiOkResponse({ type: [MessageResponse] })
-  async getGroupMessages(
-    @Param('groupId') groupId: string,
-    @GetUserId() userId: string,
-    @Query('cursor') cursor?: string | null,
-  ): Promise<MessageResponse[]> {
-    return this.messagesService.getGroupMessages(userId, groupId, cursor);
-  }
-
-  @Post('chats/:chatId')
+  @Post(':chatId')
   @UseInterceptors(FileInterceptor('file'))
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Send Message to Chat' })
@@ -77,24 +64,7 @@ export class MessagesController {
     @Body(new YupValidationPipe(MessageSchema)) input: CreateMessageDto,
     @UploadedFile() file?: BufferFile,
   ): Promise<boolean> {
-    return this.messagesService.createChatMessage(userId, chatId, input, file);
-  }
-
-  @Post('groups/:groupId')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiCookieAuth()
-  @ApiOperation({ summary: 'Send Message to Group' })
-  @ApiOkResponse({ description: 'Message Success', type: Boolean })
-  @ApiUnauthorizedResponse()
-  @ApiBody({ type: CreateMessageDto })
-  @ApiConsumes('multipart/form-data')
-  async createGroupMessage(
-    @GetUserId() userId: string,
-    @Param('groupId') groupId: string,
-    @Body(new YupValidationPipe(MessageSchema)) input: CreateMessageDto,
-    @UploadedFile() file?: BufferFile,
-  ): Promise<boolean> {
-    return this.messagesService.createGroupMessage(userId, groupId, input, file);
+    return this.messagesService.createMessage(userId, chatId, input, file);
   }
 
   @Put('/:messageId')

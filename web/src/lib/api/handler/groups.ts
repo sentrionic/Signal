@@ -1,8 +1,8 @@
-import type { AddUserDto, CreateGroupDto, GroupResponse } from '..';
+import type { AddUserDto, ChatResponse, CreateGroupDto } from '..';
 import { handler } from '../handler';
 
-export const createGroup = async (input: CreateGroupDto): Promise<GroupResponse> =>
-  await handler.post('groups', { json: { ...input } }).json<GroupResponse>();
+export const createGroup = async (input: CreateGroupDto): Promise<ChatResponse> =>
+  await handler.post('groups', { json: { ...input } }).json<ChatResponse>();
 
 export const addMemberToGroup = async (id: string, input: AddUserDto): Promise<boolean> =>
   await handler.post(`groups/${id}`, { json: { ...input } }).json<boolean>();

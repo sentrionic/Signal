@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ChatResponse, GroupResponse } from '@/lib/api';
 import { useChatsQuery } from '@/lib/composable/useChatsQuery';
 import { PencilIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import { onClickOutside } from '@vueuse/core';
@@ -7,7 +6,7 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import NewChatModal from '../../modals/NewChatModal.vue';
 
-const { chatList } = useChatsQuery();
+const { data } = useChatsQuery();
 
 const route = useRoute();
 const id = ref<string>('');
@@ -26,19 +25,17 @@ onClickOutside(wrapper, () => {
   if (!showModal.value) return;
   showModal.value = false;
 });
-
-const isChatResponse = (item: ChatResponse | GroupResponse): boolean => 'user' in item;
 </script>
 
 <template>
   <div class="relative h-full">
     <div class="h-full overflow-y-auto container">
-      <div v-if="chatList.length === 0" class="justify-center flex mt-4 text-center">
+      <div v-if="data?.length === 0" class="justify-center flex mt-4 text-center">
         <span class="text-gray-500 dark:text-gray-400 font-semibold">
           You got no messages currently
         </span>
       </div>
-      <ul v-else v-for="chat in chatList" :key="chat.id">
+      <ul v-else v-for="chat in data" :key="chat.id">
         <li>
           <router-link :to="{ name: 'dashboard', params: { id: chat.id } }">
             <div
@@ -51,8 +48,12 @@ const isChatResponse = (item: ChatResponse | GroupResponse): boolean => 'user' i
                 <div class="flex-shrink-0">
                   <img
                     class="w-12 h-12 rounded-full"
-                    :src="isChatResponse(chat) ? (chat as ChatResponse).user.image : (chat as GroupResponse).image"
-                    :alt="isChatResponse(chat) ? (chat as ChatResponse).user.username + 's image' : (chat as GroupResponse).name + 's icon'"
+                    :src="chat.type === 'DIRECT CHAT' ? chat.user?.image : chat.group?.image"
+                    :alt="
+                      chat.type === 'DIRECT CHAT'
+                        ? chat.user?.username + 's image'
+                        : chat.group?.name + 's icon'
+                    "
                   />
                 </div>
                 <div class="flex-1 min-w-0">
@@ -60,11 +61,7 @@ const isChatResponse = (item: ChatResponse | GroupResponse): boolean => 'user' i
                     :class="chat.id === id ? 'text-white' : 'text-gray-900'"
                     class="font-medium truncate dark:text-white"
                   >
-                    {{
-                      isChatResponse(chat)
-                        ? (chat as ChatResponse).user.displayName
-                        : (chat as GroupResponse).name
-                    }}
+                    {{ chat.type === 'DIRECT CHAT' ? chat.user?.displayName : chat.group?.name }}
                   </p>
                 </div>
               </div>

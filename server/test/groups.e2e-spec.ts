@@ -15,6 +15,8 @@ import { UsersModule } from '../src/users/users.module';
 import { GroupsModule } from '../src/groups/groups.module';
 import { setupApp } from '../src/app';
 import { getRandomString } from '../src/common/utils/faker';
+import { Chat } from '../src/chats/entities/chat.entity';
+import { ChatType } from '../src/chats/entities/chat-type.enum';
 
 describe('GroupsController (e2e)', () => {
   let app: NestExpressApplication;
@@ -23,6 +25,7 @@ describe('GroupsController (e2e)', () => {
   let em: EntityManager;
   let current: User;
   let group: Group;
+  let chat: Chat;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -46,51 +49,14 @@ describe('GroupsController (e2e)', () => {
     await setupApp(app);
 
     current = new User('test@example.com', 'Test', 'password');
+    chat = new Chat(ChatType.GROUP_CHAT);
     group = new Group('Group');
-    group.members.add(current);
+    chat.group = group;
+    chat.members.add(current);
     await em.persistAndFlush([current, group]);
 
     await app.init();
     server = app.getHttpServer();
-  });
-
-  describe('[GROUPS] - /api/groups/ (GET)', () => {
-    // Seed DB with chats
-    beforeEach(async () => {
-      const groups: Group[] = [];
-      const users: User[] = [];
-
-      for (let i = 0; i < 10; i++) {
-        const u = new User(`user-${i}@example.com`, `User #${i}`, 'password');
-        const g = new Group(getRandomString());
-        g.members.add(u);
-        if (i % 2 === 0) g.members.add(current);
-        groups.push(g);
-        users.push(u);
-      }
-
-      await em.persistAndFlush([...users, current, ...groups]);
-    });
-
-    it('should successfully return a list of groups for the current user', async () => {
-      const session = await login(server, current);
-
-      const { body, status } = await request(server).get('/api/groups').set('Cookie', session);
-      expect(status).toEqual(200);
-      expect(body.length).toEqual(6);
-
-      const group = body.at(1);
-      expect(group).toBeDefined();
-      expect(group?.id).toBeDefined();
-      expect(group?.name).toBeDefined();
-      expect(group?.image).toBeDefined();
-      expect(group?.memberCount).toEqual(2);
-    });
-
-    it('should throw an UnauthorizedException when no session is provided', async () => {
-      const { status } = await request(server).get('/api/groups');
-      expect(status).toEqual(403);
-    });
   });
 
   describe('[CREATE_GROUP] - /api/groups/ (POST)', () => {
@@ -106,9 +72,12 @@ describe('GroupsController (e2e)', () => {
 
       expect(body).toBeDefined();
       expect(body?.id).toBeDefined();
-      expect(body?.name).toEqual(name);
-      expect(body?.image).toBeDefined();
-      expect(body?.memberCount).toEqual(1);
+      expect(body?.group).toBeDefined();
+      expect(body?.type).toEqual(ChatType.GROUP_CHAT);
+      expect(body?.group.id).toBeDefined();
+      expect(body?.group.name).toEqual(name);
+      expect(body?.group.image).toBeDefined();
+      expect(body?.group.memberCount).toEqual(1);
     });
 
     it('should throw an UnauthorizedException when no session is provided', async () => {
@@ -126,7 +95,7 @@ describe('GroupsController (e2e)', () => {
       const session = await login(server, current);
 
       const { body, status } = await request(server)
-        .post(`/api/groups/${group.id}`)
+        .post(`/api/groups/${chat.id}`)
         .set('Cookie', session)
         .send({ username: user.username });
       expect(status).toEqual(201);
@@ -135,7 +104,7 @@ describe('GroupsController (e2e)', () => {
 
     it('should throw an UnauthorizedException when no session is provided', async () => {
       const { status } = await request(server)
-        .post(`/api/groups/${group.id}`)
+        .post(`/api/groups/${chat.id}`)
         .send({ username: 'username' });
       expect(status).toEqual(403);
     });
@@ -146,14 +115,14 @@ describe('GroupsController (e2e)', () => {
       const session = await login(server, current);
 
       const { body, status } = await request(server)
-        .delete(`/api/groups/${group.id}`)
+        .delete(`/api/groups/${chat.id}`)
         .set('Cookie', session);
       expect(status).toEqual(200);
       expect(body).toBeTruthy();
     });
 
     it('should throw an UnauthorizedException when no session is provided', async () => {
-      const { status } = await request(server).delete(`/api/groups/${group.id}`);
+      const { status } = await request(server).delete(`/api/groups/${chat.id}`);
       expect(status).toEqual(403);
     });
   });

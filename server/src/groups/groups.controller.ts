@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, UseGuards } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import { GetUserId } from '../common/decorator/user.decorator';
 import { AuthGuard } from '../common/guards/auth.guard';
@@ -15,20 +15,13 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { ChatResponse } from '../chats/dto/chat.response';
 
 @Controller('groups')
 @UseGuards(AuthGuard)
 @ApiTags('Group Operation')
 export class GroupsController {
   constructor(private readonly groupsService: GroupsService) {}
-
-  @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Get current user's groups" })
-  @ApiOkResponse({ description: 'List of groups', type: [GroupResponse] })
-  async fetchGroups(@GetUserId() id: string): Promise<GroupResponse[]> {
-    return this.groupsService.getUserGroups(id);
-  }
 
   @Post()
   @ApiCookieAuth()
@@ -38,31 +31,28 @@ export class GroupsController {
   async createGroup(
     @GetUserId() id: string,
     @Body(new YupValidationPipe(GroupSchema)) { name, ids = [] }: CreateGroupDto,
-  ): Promise<GroupResponse> {
+  ): Promise<ChatResponse> {
     return this.groupsService.createGroupChat(id, name, ids);
   }
 
-  @Post(':groupID')
+  @Post(':chatId')
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Add User' })
   @ApiCreatedResponse({ description: 'Success confirmation', type: Boolean })
   @ApiBody({ type: AddUserDto })
   async addUser(
     @GetUserId() userId: string,
-    @Param('groupID') groupID: string,
+    @Param('chatId') chatId: string,
     @Body() { username }: AddUserDto,
   ): Promise<boolean> {
-    return this.groupsService.addUserToGroup(userId, username, groupID);
+    return this.groupsService.addUserToGroup(userId, username, chatId);
   }
 
-  @Delete(':groupID')
+  @Delete(':chatId')
   @ApiCookieAuth()
   @ApiOperation({ summary: 'Leave Group' })
   @ApiOkResponse({ description: 'Success confirmation', type: Boolean })
-  async leaveGroup(
-    @GetUserId() userId: string,
-    @Param('groupID') groupID: string,
-  ): Promise<boolean> {
-    return this.groupsService.leaveGroup(userId, groupID);
+  async leaveGroup(@GetUserId() userId: string, @Param('chatId') chatId: string): Promise<boolean> {
+    return this.groupsService.leaveGroup(userId, chatId);
   }
 }

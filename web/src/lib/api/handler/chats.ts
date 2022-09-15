@@ -1,8 +1,8 @@
-import type { ChatResponse, GroupChatResponse } from '..';
+import type { ChatResponse } from '..';
 import { handler } from '../handler';
 
-export const getAllChats = async (): Promise<GroupChatResponse> => {
-  return await handler.get('chats/all').json<GroupChatResponse>();
+export const getChats = async (): Promise<ChatResponse[]> => {
+  return await handler.get('chats').json<ChatResponse[]>();
 };
 
 export const getOrCreateChat = async (id: string): Promise<ChatResponse> => {
