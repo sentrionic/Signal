@@ -26,8 +26,6 @@ export class MessagesService {
     private messageRepository: EntityRepository<Message>,
     @InjectRepository(Chat)
     private chatRepository: EntityRepository<Chat>,
-    @InjectRepository(Attachment)
-    private attachmentRepository: EntityRepository<Attachment>,
     private filesService: FilesService,
   ) {}
 
@@ -67,9 +65,7 @@ export class MessagesService {
       const filename = this.filesService.formatName(originalname);
       const directory = `channels/${chatId}`;
       const url = await this.filesService.uploadImage(directory, filename, file);
-      const attachment = new Attachment(url, mimetype, filename, message);
-      await this.attachmentRepository.persistAndFlush(attachment);
-      message.attachment = attachment;
+      message.attachment = new Attachment(url, mimetype, filename, message);
       message.type = MessageType.IMAGE;
     } else if (text) {
       message.text = text;
@@ -119,7 +115,7 @@ export class MessagesService {
   }
 
   async updateMessage(userId: string, id: string, input: UpdateMessageDto): Promise<boolean> {
-    const message = await this.messageRepository.findOne({ id });
+    const message = await this.messageRepository.findOne({ id }, { populate: ['user'] });
 
     if (!message) {
       throw new NotFoundException();
@@ -151,7 +147,6 @@ export class MessagesService {
     }
 
     if (message.attachment) {
-      await this.attachmentRepository.nativeDelete({ id: message.attachment.id });
       await this.filesService.deleteFile(message.attachment.url);
     }
 
