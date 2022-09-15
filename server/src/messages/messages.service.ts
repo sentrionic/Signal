@@ -16,6 +16,7 @@ import { Attachment } from './entities/attachment.entity';
 import { BufferFile } from '../common/types/buffer.file';
 import { FilesService } from '../files/file.service';
 import { MessageResponse } from './dto/message.response';
+import { MessageType } from './entities/message-type.enum';
 
 @Injectable()
 export class MessagesService {
@@ -72,6 +73,7 @@ export class MessagesService {
       const attachment = new Attachment(url, mimetype, filename, message);
       await this.attachmentRepository.persistAndFlush(attachment);
       message.attachment = attachment;
+      message.type = MessageType.IMAGE;
     } else if (text) {
       message.text = text;
     }
@@ -120,6 +122,7 @@ export class MessagesService {
       const attachment = new Attachment(url, mimetype, filename, message);
       await this.attachmentRepository.persistAndFlush(attachment);
       message.attachment = attachment;
+      message.type = MessageType.IMAGE;
     } else if (text) {
       message.text = text;
     }
@@ -129,7 +132,11 @@ export class MessagesService {
     return true;
   }
 
-  async getGroupMessages(userId: string, id: string, cursor?: string): Promise<MessageResponse[]> {
+  async getGroupMessages(
+    userId: string,
+    id: string,
+    cursor?: string | null,
+  ): Promise<MessageResponse[]> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -155,7 +162,7 @@ export class MessagesService {
     }
 
     const messages = await this.messageRepository.find(query, {
-      populate: ['user'],
+      populate: ['user', 'attachment'],
       limit: 35,
       orderBy: [{ sentAt: 'DESC' }],
     });
@@ -163,7 +170,11 @@ export class MessagesService {
     return messages.map((m) => m.toResponse());
   }
 
-  async getChatMessages(userId: string, id: string, cursor?: string): Promise<MessageResponse[]> {
+  async getChatMessages(
+    userId: string,
+    id: string,
+    cursor?: string | null,
+  ): Promise<MessageResponse[]> {
     const user = await this.userRepository.findOne({ id: userId });
 
     if (!user) {
@@ -189,7 +200,7 @@ export class MessagesService {
     }
 
     const messages = await this.messageRepository.find(query, {
-      populate: ['user'],
+      populate: ['user', 'attachment'],
       limit: 35,
       orderBy: [{ sentAt: 'DESC' }],
     });
@@ -230,11 +241,11 @@ export class MessagesService {
     }
 
     if (message.attachment) {
-      this.attachmentRepository.remove(message.attachment);
+      await this.attachmentRepository.nativeDelete({ id: message.attachment.id });
       await this.filesService.deleteFile(message.attachment.url);
     }
 
-    await this.messageRepository.remove(message);
+    await this.messageRepository.nativeDelete({ id });
 
     return true;
   }

@@ -28,6 +28,9 @@ export class Message {
   user: User;
 
   @OneToOne(() => Attachment, (attachment) => attachment.message, {
+    owner: true,
+    orphanRemoval: true,
+    onDelete: 'cascade',
     nullable: true,
   })
   attachment?: Attachment;
@@ -50,8 +53,9 @@ export class Message {
   toResponse(): MessageResponse {
     return {
       id: this.id,
+      text: this.text || null,
       type: this.type,
-      attachment: this.attachment?.toResponse(),
+      attachment: this.attachment?.toResponse() || null,
       deliveredAt: this.deliveredAt?.toISOString(),
       sentAt: this.sentAt.toISOString(),
       seenAt: this.seenAt?.toISOString(),

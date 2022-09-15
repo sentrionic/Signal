@@ -17,9 +17,7 @@ export class Attachment {
   @Property()
   filename: string;
 
-  @OneToOne(() => Message, (message) => message.attachment, {
-    onDelete: 'CASCADE',
-  })
+  @OneToOne(() => Message, (message) => message.attachment)
   message: Message;
 
   constructor(url: string, filetype: string, filename: string, message: Message) {

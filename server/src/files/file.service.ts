@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BufferFile } from '../common/types/buffer.file';
 import * as sharp from 'sharp';
-import path from 'path';
+import { parse } from 'path';
 import { S3 } from 'aws-sdk';
 
 @Injectable()
@@ -80,7 +80,7 @@ export class FilesService {
   }
 
   formatName(filename: string): string {
-    const file = path.parse(filename);
+    const file = parse(filename);
     const name = file.name;
     const ext = file.ext;
     const cleanFileName = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
