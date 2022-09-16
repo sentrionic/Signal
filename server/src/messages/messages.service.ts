@@ -102,7 +102,10 @@ export class MessagesService {
     };
 
     if (cursor) {
-      query.sentAt = { $lt: new Date(cursor) };
+      const date = new Date(cursor);
+      if (date.toString() === 'Invalid Date')
+        throw new BadRequestException({ message: 'Not a valid cursor' });
+      query.sentAt = { $lt: date };
     }
 
     const messages = await this.messageRepository.find(query, {
