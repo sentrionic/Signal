@@ -1,22 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
 import ChatUserInfo from '../chat/ChatUserInfo.vue';
-import type { ChatResponse, GroupResponse } from '@/lib/api';
 import ChatGroupInfo from '../chat/ChatGroupInfo.vue';
 
 const { current } = useCurrentRoute();
-
-const isGroup = computed(() => {
-  if (!current.value) return false;
-  return !('user' in current.value);
-});
 </script>
 
 <template>
   <div class="info space-y-2">
-    <ChatUserInfo v-if="!isGroup" :current="(current as ChatResponse)" />
-    <ChatGroupInfo v-else :current="(current as GroupResponse)" />
+    <ChatUserInfo v-if="current?.user" :current="current" />
+    <ChatGroupInfo v-if="current?.group" :current="current.group" />
   </div>
 </template>
 

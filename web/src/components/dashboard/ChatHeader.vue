@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { onClickOutside } from '@vueuse/core';
-import type { ChatResponse, GroupResponse } from '@/lib/api';
 import { useInfoStore } from '@/stores/infoStore';
 import ChatUserHeader from '../chat/ChatUserHeader.vue';
 import ChatGroupHeader from '../chat/ChatGroupHeader.vue';
 import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
 
 const { current } = useCurrentRoute();
-
-const isGroup = computed(() => {
-  if (!current.value) return false;
-  return !('user' in current.value);
-});
 
 const showMenu = ref(false);
 
@@ -33,13 +27,14 @@ const { toggleVisibility } = useInfoStore();
   <div class="header">
     <div v-if="current" class="flex items-center justify-between space-x-4 h-full" ref="wrapper">
       <ChatUserHeader
-        v-if="!isGroup"
-        :current="(current as ChatResponse)"
+        v-if="!current.group"
+        :current="current"
         @toggleVisibility="toggleVisibility"
       />
       <ChatGroupHeader
         v-else
-        :current="(current as GroupResponse)"
+        :chatId="current.id"
+        :current="current.group"
         :showMenu="showMenu"
         @toggleVisibility="toggleVisibility"
         @onHide="onHide"

@@ -10,10 +10,11 @@ import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
 import { getOrCreateChat } from '@/lib/api/handler/chats';
 import { useRouter } from 'vue-router';
-import { SidebarMode } from '@/lib/models/enums';
+import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { cKey, useChatsQuery } from '@/lib/composable/useChatsQuery';
 import { useQueryClient } from 'vue-query';
-import type { GroupChatResponse } from '@/lib/api';
+import type { ChatResponse } from '@/lib/api';
+import ContactItem from '../../items/ContactItem.vue';
 
 const { data } = useFriendsQuery();
 const { data: chatData } = useChatsQuery();
@@ -43,7 +44,7 @@ const optionClicked = (event: ContextMenuSelection) => {
 };
 
 const handleClick = async (id: string) => {
-  const contact = chatData.value?.chats.find((e) => e.user.id === id);
+  const contact = chatData.value?.find((e) => e.user?.id === id);
 
   if (contact) {
     router.push({ name: 'dashboard', params: { id: contact.id } });
@@ -51,9 +52,9 @@ const handleClick = async (id: string) => {
   } else {
     try {
       const response = await getOrCreateChat(id);
-      cache.setQueryData<GroupChatResponse>(cKey, (old) => {
-        if (!old) return { groups: [], chats: [] };
-        return { groups: [...old.groups], chats: [response, ...old.chats] };
+      cache.setQueryData<ChatResponse[]>(cKey, (old) => {
+        if (!old) return [];
+        return [response, ...old];
       });
       router.push({ name: 'dashboard', params: { id: response.id } });
       store.setMode(SidebarMode.MESSAGES);
@@ -84,23 +85,7 @@ const filteredList = computed(() => {
         @contextmenu.prevent.stop="handleContextMenu($event, friend.id)"
       >
         <li>
-          <div
-            class="flex items-center space-x-4 hover:bg-zinc-100 dark:hover:bg-hoverDark rounded-md p-2.5 hover:cursor-pointer"
-          >
-            <div class="flex-shrink-0">
-              <img
-                class="w-12 h-12 rounded-full"
-                :src="friend.image"
-                :alt="friend.username + 's image'"
-              />
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="font-medium text-gray-900 truncate dark:text-white">
-                {{ friend.displayName }}
-              </p>
-              <p class="text-gray-500 truncate dark:text-gray-400">{{ friend.bio }}</p>
-            </div>
-          </div>
+          <ContactItem :friend="friend" />
         </li>
         <RemoveFriendModal
           v-if="isRemoveFriendVisible"
@@ -110,7 +95,7 @@ const filteredList = computed(() => {
       </ul>
     </div>
     <ContextMenu
-      elementId="myUniqueId"
+      elementId="contact-menu"
       :options="options"
       ref="contextmenu"
       @option-clicked="optionClicked"

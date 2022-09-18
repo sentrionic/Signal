@@ -76,11 +76,6 @@ export interface AddRequestDto {
   username: string;
 }
 
-export interface ChatResponse {
-  id: string;
-  user: UserResponse;
-}
-
 export interface GroupResponse {
   id: string;
   name: string;
@@ -89,9 +84,12 @@ export interface GroupResponse {
   memberCount: number;
 }
 
-export interface GroupChatResponse {
-  chats: ChatResponse[];
-  groups: GroupResponse[];
+export interface ChatResponse {
+  id: string;
+  type: 'GROUP CHAT' | 'DIRECT CHAT';
+  user: UserResponse | null;
+  group: GroupResponse | null;
+  lastMessage: string | null;
 }
 
 export interface ChatDto {
@@ -105,4 +103,34 @@ export interface CreateGroupDto {
 
 export interface AddUserDto {
   username: string;
+}
+
+export interface AttachmentResponse {
+  url: string;
+  filetype: string;
+  filename: string;
+}
+
+export interface MessageResponse {
+  id: string;
+  type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO';
+  text: string | null;
+  user: UserResponse;
+  attachment: AttachmentResponse | null;
+  sentAt: string;
+  deliveredAt: string | null;
+  seenAt: string | null;
+}
+
+export interface CreateMessageDto {
+  /** The message. Either this or the file must not be null */
+  text?: string | null;
+
+  /** @format binary */
+  file?: File | null;
+}
+
+export interface UpdateMessageDto {
+  /** The new message. */
+  text: string;
 }

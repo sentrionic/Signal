@@ -6,7 +6,7 @@ import { User } from '../users/entities/user.entity';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Chat } from './entities/chat.entity';
 import { getMockUser, userMock } from '../users/mocks/user.mock';
-import { getMockChat } from './mocks/chat.mock';
+import { getMockChat, getMockGroupChat } from './mocks/chat.mock';
 import { NotFoundException } from '@nestjs/common';
 import { validate } from 'uuid';
 import { Collection } from '@mikro-orm/core';
@@ -23,6 +23,7 @@ describe('ChatsService', () => {
     find: jest.fn(),
     findOne: jest.fn(),
     persistAndFlush: jest.fn(),
+    populate: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -48,7 +49,7 @@ describe('ChatsService', () => {
     it('should successfully return all the chats for the current user', async () => {
       const chats: Chat[] = [];
       for (let i = 0; i < 3; i++) {
-        const chat = getMockChat();
+        const chat = i % 2 == 0 ? getMockChat() : getMockGroupChat();
         const mockContact = getMockUser();
         jest.spyOn(chat.members, 'add').mockReturnValue();
         jest.spyOn(chat.members, 'getItems').mockReturnValue([current, mockContact]);
@@ -65,29 +66,6 @@ describe('ChatsService', () => {
 
       const response = await service.getUserChats(current.id);
       expect(response.length).toEqual(3);
-    });
-
-    it('should throw a NotFoundException if a chat cannot be found for the given ID', async () => {
-      const chats: Chat[] = [];
-      for (let i = 0; i < 3; i++) {
-        const chat = getMockChat();
-        const mockContact = getMockUser();
-        jest.spyOn(chat.members, 'add').mockReturnValue();
-        jest.spyOn(chat.members, 'getItems').mockReturnValue([current, mockContact]);
-        chats.push(chat);
-      }
-
-      chatRepository.find = jest.fn().mockReturnValue(chats);
-
-      chatRepository.findOne = jest
-        .fn()
-        .mockReturnValueOnce(chats[0])
-        .mockReturnValueOnce(chats[1])
-        .mockReturnValueOnce(null);
-
-      expect(async () => await service.getUserChats(current.id)).rejects.toThrow(
-        new NotFoundException(),
-      );
     });
   });
 

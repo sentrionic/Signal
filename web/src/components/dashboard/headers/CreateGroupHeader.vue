@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline';
-import { SidebarMode } from '../../../lib/models/enums';
+import { SidebarMode } from '../../../lib/models/sidebar-mode';
 import { useSidebarStore } from '../../../stores/sidebarStore';
 import IconButton from '@/components/common/IconButton.vue';
 

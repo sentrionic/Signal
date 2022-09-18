@@ -1,25 +1,3 @@
-<template>
-  <Transition>
-    <div ref="target">
-      <ul :id="elementId" class="vue-simple-context-menu">
-        <li
-          v-for="(option, index) in options"
-          :key="index"
-          @click.stop="optionClicked(option)"
-          :class="
-            option.isDestructive
-              ? 'vue-simple-context-menu__item-destructive'
-              : 'vue-simple-context-menu__item'
-          "
-        >
-          <component :is="option.icon" class="w-5 h-5 mr-3" />
-          <span v-html="option.name"></span>
-        </li>
-      </ul>
-    </div>
-  </Transition>
-</template>
-
 <script setup lang="ts">
 import type { ContextMenuItem, ContextMenuSelection } from '@/lib/models/context-menu';
 import { onClickOutside } from '@vueuse/core';
@@ -99,6 +77,28 @@ defineExpose({
   showMenu,
 });
 </script>
+
+<template>
+  <Transition>
+    <div ref="target">
+      <ul :id="elementId" class="vue-simple-context-menu">
+        <li
+          v-for="(option, index) in options"
+          :key="index"
+          @click.stop="optionClicked(option)"
+          :class="
+            option.isDestructive
+              ? 'vue-simple-context-menu__item-destructive'
+              : 'vue-simple-context-menu__item'
+          "
+        >
+          <component :is="option.icon" class="w-5 h-5 mr-3" />
+          <span v-html="option.name"></span>
+        </li>
+      </ul>
+    </div>
+  </Transition>
+</template>
 
 <style lang="css">
 .vue-simple-context-menu {

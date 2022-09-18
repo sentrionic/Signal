@@ -4,11 +4,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { GroupResponse } from './dto/group.response';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { User } from '../users/entities/user.entity';
 import { EntityRepository } from '@mikro-orm/core';
 import { Group } from './entities/group.entity';
+import { Chat } from '../chats/entities/chat.entity';
+import { ChatType } from '../chats/entities/chat-type.enum';
+import { ChatResponse } from '../chats/dto/chat.response';
 
 @Injectable()
 export class GroupsService {
@@ -17,44 +19,38 @@ export class GroupsService {
     private userRepository: EntityRepository<User>,
     @InjectRepository(Group)
     private groupRepository: EntityRepository<Group>,
+    @InjectRepository(Chat)
+    private chatRepository: EntityRepository<Chat>,
   ) {}
 
-  async getUserGroups(current: string): Promise<GroupResponse[]> {
-    const chats = await this.groupRepository.find({
-      members: { id: current },
-    });
-
-    const response: GroupResponse[] = [];
-
-    for (const c of chats) {
-      await this.groupRepository.populate(c, ['members']);
-      response.push(c.toGroupResponse());
-    }
-
-    return response;
-  }
-
-  async createGroupChat(current: string, name: string, ids: string[]): Promise<GroupResponse> {
+  async createGroupChat(current: string, name: string, ids: string[]): Promise<ChatResponse> {
+    const chat = new Chat(ChatType.GROUP_CHAT);
     const group = new Group(name);
+    chat.group = group;
 
     const users = await this.userRepository.find({ id: { $in: [...ids, current] } });
 
-    users.forEach((u) => group.members.add(u));
+    users.forEach((u) => chat.members.add(u));
 
     await this.groupRepository.persistAndFlush(group);
+    await this.chatRepository.persistAndFlush(chat);
 
-    return group.toGroupResponse();
+    return chat.toChatResponse();
   }
 
-  async addUserToGroup(currentId: string, username: string, groupID: string): Promise<boolean> {
+  async addUserToGroup(currentId: string, username: string, chatId: string): Promise<boolean> {
     const current = await this.userRepository.getReference(currentId);
-    const group = await this.groupRepository.findOne({ id: groupID }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members'] });
 
-    if (!group) {
+    if (!chat) {
       throw new NotFoundException();
     }
 
-    if (!group.members.contains(current)) {
+    if (chat.type == ChatType.DIRECT_CHAT) {
+      throw new BadRequestException({ message: 'Cannot add another user to a direct chat' });
+    }
+
+    if (!chat.members.contains(current)) {
       throw new UnauthorizedException();
     }
 
@@ -64,28 +60,32 @@ export class GroupsService {
       throw new NotFoundException();
     }
 
-    if (group.members.contains(member)) {
+    if (chat.members.contains(member)) {
       throw new BadRequestException({ message: 'This user is already a member' });
     }
 
-    group.members.add(member);
+    chat.members.add(member);
 
-    await this.groupRepository.flush();
+    await this.chatRepository.flush();
 
     return true;
   }
 
-  async leaveGroup(currentId: string, groupID: string): Promise<boolean> {
+  async leaveGroup(currentId: string, chatId: string): Promise<boolean> {
     const current = await this.userRepository.getReference(currentId);
-    const group = await this.groupRepository.findOne({ id: groupID }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members'] });
 
-    if (!group) {
+    if (!chat) {
       throw new NotFoundException();
     }
 
-    group.members.remove(current);
+    if (chat.type === ChatType.DIRECT_CHAT) {
+      throw new BadRequestException({ message: 'Cannot leave a direct chat' });
+    }
 
-    await this.groupRepository.flush();
+    chat.members.remove(current);
+
+    await this.chatRepository.flush();
 
     return true;
   }

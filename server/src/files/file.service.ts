@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BufferFile } from '../common/types/buffer.file';
 import * as sharp from 'sharp';
-import path from 'path';
+import { parse } from 'path';
 import { S3 } from 'aws-sdk';
 
 @Injectable()
@@ -22,6 +22,25 @@ export class FilesService {
       Key: `files/${directory}/avatar.webp`,
       Body: stream,
       ContentType: 'image/webp',
+    };
+
+    const s3 = new S3();
+
+    const response = await s3.upload(params).promise();
+
+    return response.Location;
+  }
+
+  async uploadImage(directory: string, filename: string, image: BufferFile): Promise<string> {
+    const { buffer, mimetype } = await image;
+
+    const key = `files/${directory}/${filename}`;
+
+    const params = {
+      Bucket: this.configService.get('AWS_STORAGE_BUCKET_NAME'),
+      Key: key,
+      Body: buffer,
+      ContentType: mimetype,
     };
 
     const s3 = new S3();
@@ -61,10 +80,11 @@ export class FilesService {
   }
 
   formatName(filename: string): string {
-    const file = path.parse(filename);
+    const file = parse(filename);
     const name = file.name;
     const ext = file.ext;
     const cleanFileName = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    return `${cleanFileName}${ext}`;
+    const date = Date.now();
+    return `${date}-${cleanFileName}${ext}`;
   }
 }

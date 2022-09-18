@@ -6,14 +6,14 @@ import FormField from '@/components/form/FormField.vue';
 import FormButton from '@/components/form/FormButton.vue';
 import TypeaheadInputVue from '@/components/common/TypeaheadInput.vue';
 import { useFriendsQuery } from '@/lib/composable/useFriendsQuery';
-import type { CreateGroupDto, GroupChatResponse, UserResponse } from '@/lib/api';
+import type { ChatResponse, CreateGroupDto, UserResponse } from '@/lib/api';
 import AddImageIcon from '../../icons/AddImageIcon.vue';
 import IconButton from '@/components/common/IconButton.vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 import { createGroup } from '@/lib/api/handler/groups';
 import { useRouter } from 'vue-router';
 import { useSidebarStore } from '@/stores/sidebarStore';
-import { SidebarMode } from '@/lib/models/enums';
+import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { useQueryClient } from 'vue-query';
 import { cKey } from '@/lib/composable/useChatsQuery';
 
@@ -55,9 +55,9 @@ const handleSubmit = async () => {
 
   try {
     const response = await createGroup(values);
-    cache.setQueryData<GroupChatResponse>(cKey, (old) => {
-      if (!old) return { groups: [], chats: [] };
-      return { groups: [response, ...old.groups], chats: [...old.chats] };
+    cache.setQueryData<ChatResponse[]>(cKey, (old) => {
+      if (!old) return [];
+      return [response, ...old];
     });
     router.push({ name: 'dashboard', params: { id: response.id } });
     setMode(SidebarMode.MESSAGES);

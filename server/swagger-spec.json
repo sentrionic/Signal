@@ -390,33 +390,6 @@
         ]
       }
     },
-    "/api/chats/all": {
-      "get": {
-        "operationId": "ChatsController_getChatsAndGroups",
-        "summary": "Get current user's chats and groups",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of chats",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GroupChatResponse"
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Chat Operation"
-        ],
-        "security": [
-          {
-            "cookie": []
-          }
-        ]
-      }
-    },
     "/api/chats": {
       "get": {
         "operationId": "ChatsController_getChats",
@@ -483,34 +456,6 @@
       }
     },
     "/api/groups": {
-      "get": {
-        "operationId": "GroupsController_fetchGroups",
-        "summary": "Get current user's groups",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "List of groups",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GroupResponse"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "Group Operation"
-        ],
-        "security": [
-          {
-            "cookie": []
-          }
-        ]
-      },
       "post": {
         "operationId": "GroupsController_createGroup",
         "summary": "Create Group",
@@ -547,13 +492,13 @@
         ]
       }
     },
-    "/api/groups/{groupID}": {
+    "/api/groups/{chatId}": {
       "post": {
         "operationId": "GroupsController_addUser",
         "summary": "Add User",
         "parameters": [
           {
-            "name": "groupID",
+            "name": "chatId",
             "required": true,
             "in": "path",
             "schema": {
@@ -597,7 +542,7 @@
         "summary": "Leave Group",
         "parameters": [
           {
-            "name": "groupID",
+            "name": "chatId",
             "required": true,
             "in": "path",
             "schema": {
@@ -619,6 +564,191 @@
         },
         "tags": [
           "Group Operation"
+        ],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      }
+    },
+    "/api/messages/{chatId}": {
+      "get": {
+        "operationId": "MessagesController_getChatMessages",
+        "summary": "Get Chat Messages",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "tags": [
+          "Message Operation"
+        ],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "MessagesController_createChatMessage",
+        "summary": "Send Message to Chat",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Message Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Message Operation"
+        ],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      }
+    },
+    "/api/messages/{messageId}": {
+      "put": {
+        "operationId": "MessagesController_editMessage",
+        "summary": "Edit Message",
+        "parameters": [
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Edit Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Message Operation"
+        ],
+        "security": [
+          {
+            "cookie": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "MessagesController_deleteMessage",
+        "summary": "Delete Message",
+        "parameters": [
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delete Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Message Operation"
         ],
         "security": [
           {
@@ -809,21 +939,6 @@
           "username"
         ]
       },
-      "ChatResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserResponse"
-          }
-        },
-        "required": [
-          "id",
-          "user"
-        ]
-      },
       "GroupResponse": {
         "type": "object",
         "properties": {
@@ -851,25 +966,46 @@
           "memberCount"
         ]
       },
-      "GroupChatResponse": {
+      "ChatResponse": {
         "type": "object",
         "properties": {
-          "chats": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ChatResponse"
-            }
+          "id": {
+            "type": "string"
           },
-          "groups": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GroupResponse"
-            }
+          "type": {
+            "type": "string",
+            "enum": [
+              "GROUP CHAT",
+              "DIRECT CHAT"
+            ]
+          },
+          "user": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponse"
+              }
+            ]
+          },
+          "group": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GroupResponse"
+              }
+            ]
+          },
+          "lastMessage": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
-          "chats",
-          "groups"
+          "id",
+          "type",
+          "user",
+          "group",
+          "lastMessage"
         ]
       },
       "ChatDto": {
@@ -910,6 +1046,105 @@
         },
         "required": [
           "username"
+        ]
+      },
+      "AttachmentResponse": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "filetype": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url",
+          "filetype",
+          "filename"
+        ]
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "IMAGE",
+              "VIDEO",
+              "AUDIO"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "nullable": true
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserResponse"
+          },
+          "attachment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AttachmentResponse"
+              }
+            ]
+          },
+          "sentAt": {
+            "type": "string"
+          },
+          "deliveredAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "seenAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "text",
+          "user",
+          "attachment",
+          "sentAt",
+          "deliveredAt",
+          "seenAt"
+        ]
+      },
+      "CreateMessageDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "nullable": true,
+            "description": "The message. Either this or the file must not be null"
+          },
+          "file": {
+            "type": "string",
+            "nullable": true,
+            "format": "binary"
+          }
+        }
+      },
+      "UpdateMessageDto": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "The new message."
+          }
+        },
+        "required": [
+          "text"
         ]
       }
     }

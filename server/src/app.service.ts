@@ -3,6 +3,7 @@ import { MikroORM } from '@mikro-orm/core';
 import { User } from './users/entities/user.entity';
 import { Group } from './groups/entities/group.entity';
 import { Chat } from './chats/entities/chat.entity';
+import { ChatType } from './chats/entities/chat-type.enum';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -28,13 +29,15 @@ export class AppService implements OnModuleInit {
     const user3 = new User('dan@example.com', 'Dan', 'password');
 
     // Create group
+    const chat = new Chat(ChatType.GROUP_CHAT);
     const group = new Group('Group #1');
-    group.members.add(user1, user2);
+    chat.group = group;
+    chat.members.add(user1, user2);
 
-    // Create chat
-    const chat = new Chat();
-    chat.members.add(user1, user3);
+    // Create direct chat
+    const directChat = new Chat(ChatType.DIRECT_CHAT);
+    directChat.members.add(user1, user3);
 
-    await em.persistAndFlush([user1, user2, user3, group, chat]);
+    await em.persistAndFlush([user1, user2, user3, group, chat, directChat]);
   }
 }

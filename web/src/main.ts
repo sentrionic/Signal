@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import { VueQueryPlugin } from 'vue-query';
+import { VueQueryPlugin, type VueQueryPluginOptions } from 'vue-query';
 import './index.css';
 import 'flowbite';
 
@@ -11,6 +11,19 @@ const app = createApp(App);
 
 app.use(createPinia());
 app.use(router);
-app.use(VueQueryPlugin);
+
+const options: VueQueryPluginOptions = {
+  queryClientConfig: {
+    defaultOptions: {
+      queries: {
+        refetchOnWindowFocus: false,
+        staleTime: Infinity,
+        cacheTime: 0,
+      },
+    },
+  },
+};
+
+app.use(VueQueryPlugin, options);
 
 app.mount('#app');
