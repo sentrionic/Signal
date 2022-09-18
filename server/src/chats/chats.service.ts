@@ -43,7 +43,7 @@ export class ChatsService {
       {
         members: { id: { $in: [currentID, contactID] } },
       },
-      { populate: ['members'] },
+      { populate: ['members', 'messages'] },
     );
 
     if (chat) {

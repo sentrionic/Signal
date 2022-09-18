@@ -101,7 +101,7 @@ describe('MessagesController (e2e)', () => {
       expect(status).toEqual(200);
 
       expect(body).toBeDefined();
-      expect(body.length).toEqual(5);
+      expect(body.length).toBeLessThanOrEqual(5);
       const message = body[0] as MessageResponse;
       validateResponse(message);
 
