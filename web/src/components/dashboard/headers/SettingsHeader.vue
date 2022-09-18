@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ArrowLeftIcon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline';
 import { logout } from '../../../lib/api/handler/account';
-import { SidebarMode } from '../../../lib/models/enums';
+import { SidebarMode } from '../../../lib/models/sidebar-mode';
 import router from '../../../router';
 import { useSidebarStore } from '../../../stores/sidebarStore';
 import { useUserStore } from '../../../stores/userStore';

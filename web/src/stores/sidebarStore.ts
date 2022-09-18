@@ -1,4 +1,4 @@
-import { SidebarMode } from '@/lib/models/enums';
+import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 

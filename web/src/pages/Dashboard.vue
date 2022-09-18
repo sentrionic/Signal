@@ -7,9 +7,11 @@ import ChatInfo from '../components/dashboard/ChatInfo.vue';
 import ChatInfoHeader from '../components/dashboard/headers/ChatInfoHeader.vue';
 import { useInfoStore } from '@/stores/infoStore';
 import { storeToRefs } from 'pinia';
+import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
 
 const store = useInfoStore();
 const { isVisible } = storeToRefs(store);
+const { current } = useCurrentRoute();
 </script>
 
 <script lang="ts">
@@ -23,7 +25,7 @@ export default {
     <ChatHeader />
     <Sidebar />
     <ChatBody />
-    <ChatFooter />
+    <ChatFooter :key="current?.id" />
     <ChatInfoHeader v-if="isVisible" />
     <ChatInfo v-if="isVisible" />
   </div>

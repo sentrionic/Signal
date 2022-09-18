@@ -89,6 +89,7 @@ export interface ChatResponse {
   type: 'GROUP CHAT' | 'DIRECT CHAT';
   user: UserResponse | null;
   group: GroupResponse | null;
+  lastMessage: string | null;
 }
 
 export interface ChatDto {

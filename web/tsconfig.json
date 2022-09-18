@@ -5,9 +5,12 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "lib": ["DOM", "ESNext"],
+    "types": [],
+    "skipLibCheck": true
   },
-
+  "exclude": ["node_modules"],
   "references": [
     {
       "path": "./tsconfig.config.json"

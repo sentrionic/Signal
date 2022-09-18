@@ -2,7 +2,7 @@
 @tailwind components;
 
 .fab {
-    @apply absolute bottom-2 right-2 text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-full p-3 text-center inline-flex items-center mr-2 dark:bg-primary-600 dark:hover:bg-primary-700;
-  }
+  @apply absolute bottom-2 right-2 text-white bg-primary-600 hover:bg-primary-700 font-medium rounded-full p-3 text-center inline-flex items-center mr-2 dark:bg-primary-600 dark:hover:bg-primary-700;
+}
 
 @tailwind utilities;

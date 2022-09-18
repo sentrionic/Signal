@@ -2,19 +2,11 @@
 import { useChatsQuery } from '@/lib/composable/useChatsQuery';
 import { PencilIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import { onClickOutside } from '@vueuse/core';
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref } from 'vue';
 import NewChatModal from '../../modals/NewChatModal.vue';
+import ChatItem from '../../items/ChatItem.vue';
 
 const { data } = useChatsQuery();
-
-const route = useRoute();
-const id = ref<string>('');
-
-watch(
-  () => route.params.id,
-  (newId) => (id.value = newId.toString())
-);
 
 const showModal = ref(false);
 const wrapper = ref<HTMLDivElement>();
@@ -37,36 +29,7 @@ onClickOutside(wrapper, () => {
       </div>
       <ul v-else v-for="chat in data" :key="chat.id">
         <li>
-          <router-link :to="{ name: 'dashboard', params: { id: chat.id } }">
-            <div
-              :class="
-                chat.id === id ? 'bg-primary-600' : 'hover:bg-zinc-100 dark:hover:bg-hoverDark'
-              "
-              class="flex items-center justify-between rounded-md p-2.5 hover:cursor-pointer"
-            >
-              <div class="flex items-center space-x-4">
-                <div class="flex-shrink-0">
-                  <img
-                    class="w-12 h-12 rounded-full"
-                    :src="chat.type === 'DIRECT CHAT' ? chat.user?.image : chat.group?.image"
-                    :alt="
-                      chat.type === 'DIRECT CHAT'
-                        ? chat.user?.username + 's image'
-                        : chat.group?.name + 's icon'
-                    "
-                  />
-                </div>
-                <div class="flex-1 min-w-0">
-                  <p
-                    :class="chat.id === id ? 'text-white' : 'text-gray-900'"
-                    class="font-medium truncate dark:text-white"
-                  >
-                    {{ chat.type === 'DIRECT CHAT' ? chat.user?.displayName : chat.group?.name }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </router-link>
+          <ChatItem :chat="chat" />
         </li>
       </ul>
       <div ref="wrapper">

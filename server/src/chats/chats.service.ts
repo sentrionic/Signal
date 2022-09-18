@@ -16,12 +16,15 @@ export class ChatsService {
   ) {}
 
   async getUserChats(currentID: string): Promise<ChatResponse[]> {
-    const chats = await this.chatRepository.find({ members: { id: currentID } });
+    const chats = await this.chatRepository.find(
+      { members: { id: currentID } },
+      { orderBy: { messages: { sentAt: 'DESC NULLS LAST' } } },
+    );
 
     const response: ChatResponse[] = [];
 
     for (const c of chats) {
-      await this.chatRepository.populate(c, ['members', 'group']);
+      await this.chatRepository.populate(c, ['members', 'group', 'messages']);
 
       if (c.type == ChatType.DIRECT_CHAT) {
         // Get the "other" member of the chat

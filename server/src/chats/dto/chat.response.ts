@@ -15,4 +15,7 @@ export class ChatResponse {
 
   @ApiProperty({ type: GroupResponse, nullable: true })
   group?: GroupResponse | null;
+
+  @ApiProperty({ type: String, nullable: true })
+  lastMessage?: string | null;
 }

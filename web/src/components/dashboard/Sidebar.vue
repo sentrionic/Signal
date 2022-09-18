@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SidebarMode } from '@/lib/models/enums';
+import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
 import MessageHeader from './headers/MessageHeader.vue';

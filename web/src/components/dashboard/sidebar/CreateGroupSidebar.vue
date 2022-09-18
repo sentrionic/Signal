@@ -13,7 +13,7 @@ import { XMarkIcon } from '@heroicons/vue/24/solid';
 import { createGroup } from '@/lib/api/handler/groups';
 import { useRouter } from 'vue-router';
 import { useSidebarStore } from '@/stores/sidebarStore';
-import { SidebarMode } from '@/lib/models/enums';
+import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { useQueryClient } from 'vue-query';
 import { cKey } from '@/lib/composable/useChatsQuery';
 

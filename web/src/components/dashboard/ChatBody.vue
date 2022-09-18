@@ -1,10 +1,13 @@
+<script setup lang="ts">
+import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import ChatWindow from '../chat/ChatWindow.vue';
+
+const { current } = useCurrentRoute();
+</script>
+
 <template>
-  <div class="main">
-    <h1
-      class="m-20 text-4xl font-extrabold tracking-tight leading-none text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
-    >
-      Chat
-    </h1>
+  <div class="main overflow-auto scrollbar-css flex flex-col-reverse">
+    <ChatWindow v-if="current" :chat="current" :key="current.id" />
   </div>
 </template>
 
@@ -14,6 +17,15 @@
   grid-column-start: main;
   grid-row-end: main;
   grid-column-end: main;
-  @apply border border-borderLight dark:border-borderDark bg-slate-100 dark:bg-black;
+  @apply border-l border-t border-r border-borderLight dark:border-borderDark bg-slate-100 dark:bg-black;
+}
+
+.scrollbar-css {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-css::-webkit-scrollbar {
+  display: none;
 }
 </style>

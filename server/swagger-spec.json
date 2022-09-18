@@ -994,13 +994,18 @@
                 "$ref": "#/components/schemas/GroupResponse"
               }
             ]
+          },
+          "lastMessage": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "type",
           "user",
-          "group"
+          "group",
+          "lastMessage"
         ]
       },
       "ChatDto": {

@@ -3,7 +3,7 @@ import DropdownMenuItem from './DropdownMenuItem.vue';
 import ToggleDarkModeItem from './ToggleDarkModeItem.vue';
 import { UserIcon, Cog6ToothIcon, InboxIcon } from '@heroicons/vue/24/outline';
 import { useSidebarStore } from '../../../../stores/sidebarStore';
-import { SidebarMode } from '../../../../lib/models/enums';
+import { SidebarMode } from '../../../../lib/models/sidebar-mode';
 
 const props = defineProps<{ onHide: () => void }>();
 
