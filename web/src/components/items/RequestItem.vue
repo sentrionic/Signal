@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RequestType, type RequestResponse } from '@/lib/api';
 import { acceptRequest, removeRequest } from '@/lib/api/handler/requests';
-import { rKey } from '@/lib/composable/useRequestsQuery';
+import { rKey } from '@/lib/composable/query/useRequestsQuery';
 import { useQueryClient } from 'vue-query';
 defineProps<{ request: RequestResponse }>();
 

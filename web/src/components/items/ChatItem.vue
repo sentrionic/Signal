@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ChatResponse } from '@/lib/api';
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 
 const { id } = useCurrentRoute();
 defineProps<{ chat: ChatResponse }>();

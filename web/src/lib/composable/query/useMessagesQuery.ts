@@ -1,6 +1,6 @@
+import { getMessages } from '@/lib/api/handler/messages';
 import { ref } from 'vue';
 import { useInfiniteQuery } from 'vue-query';
-import { getMessages } from '../api/handler/messages';
 
 export const mKey = 'mKey';
 

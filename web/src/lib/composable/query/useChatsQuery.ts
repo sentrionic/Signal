@@ -1,5 +1,5 @@
 import { useQuery } from 'vue-query';
-import { getChats } from '../api/handler/chats';
+import { getChats } from '../../api/handler/chats';
 
 export const cKey = 'chats';
 

@@ -7,7 +7,7 @@ import ChatInfo from '../components/dashboard/ChatInfo.vue';
 import ChatInfoHeader from '../components/dashboard/headers/ChatInfoHeader.vue';
 import { useInfoStore } from '@/stores/infoStore';
 import { storeToRefs } from 'pinia';
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 
 const store = useInfoStore();
 const { isVisible } = storeToRefs(store);

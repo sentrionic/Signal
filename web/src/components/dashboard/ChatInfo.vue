@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 import ChatUserInfo from '../chat/ChatUserInfo.vue';
 import ChatGroupInfo from '../chat/ChatGroupInfo.vue';
 

@@ -25,12 +25,18 @@ export class AppGateway implements OnGatewayInit {
   ) {}
 
   async afterInit(server: Server) {
+    this.socketService.setupSocket(server);
     // @ts-ignore
     server.use(sharedsession(await setupSession(this.configService)));
   }
 
-  @SubscribeMessage('joinRoom')
-  handleRoomJoin(client: Socket, room: string): void {
+  @SubscribeMessage('joinChat')
+  handleChatJoin(client: Socket, room: string): void {
     this.socketService.joinChat(client, room);
+  }
+
+  @SubscribeMessage('leaveChat')
+  handleChatLeave(client: Socket, room: string): void {
+    client.leave(room);
   }
 }

@@ -1,12 +1,24 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { Injectable } from '@nestjs/common';
 import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { WsException } from '@nestjs/websockets';
 import { Chat } from '../chats/entities/chat.entity';
+import { MessageResponse } from '../messages/dto/message.response';
 
 @Injectable()
 export class SocketService {
+  private socket: Server | null = null;
+
+  private get server(): Server {
+    if (!this.socket) throw new WsException({ message: 'Server not initialized' });
+    return this.socket;
+  }
+
   constructor(private readonly orm: MikroORM) {}
+
+  setupSocket(socket: Server): void {
+    this.socket = socket;
+  }
 
   private getUserIdFromSession(client: Socket): string {
     // @ts-ignore
@@ -33,5 +45,14 @@ export class SocketService {
     }
 
     client.join(room);
+  }
+
+  /**
+   * Emits a "new_message" event
+   * @param room The id of the room
+   * @param message The new message
+   */
+  sendMessage(room: string, message: MessageResponse) {
+    this.server.to(room).emit('new_message', message);
   }
 }

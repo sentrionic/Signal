@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { createMessage, updateMessage } from '@/lib/api/handler/messages';
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 import { PaperAirplaneIcon, PencilSquareIcon } from '@heroicons/vue/24/solid';
 import { PhotoIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { ref, watch } from 'vue';
@@ -26,8 +26,8 @@ const handleSubmit = async () => {
   if (!current.value) return;
   if (text.value.trim().length === 0) return;
 
-  if (isEditing) {
-    if (!message.value?.text) return;
+  if (isEditing.value) {
+    if (!message.value) return;
     await updateMessage(message.value.id, text.value);
     handleCancelEdit();
   } else {

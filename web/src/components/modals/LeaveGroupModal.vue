@@ -4,7 +4,7 @@ import ModalWrapper from './ModalWrapper.vue';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 import { leaveGroup } from '@/lib/api/handler/groups';
 import { useQueryClient } from 'vue-query';
-import { cKey } from '@/lib/composable/useChatsQuery';
+import { cKey } from '@/lib/composable/query/useChatsQuery';
 import { useRouter } from 'vue-router';
 
 const props = defineProps<{

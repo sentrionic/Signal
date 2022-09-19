@@ -4,7 +4,7 @@ import ModalWrapper from './ModalWrapper.vue';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline';
 import { removeFriend } from '@/lib/api/handler/friends';
 import { useQueryClient } from 'vue-query';
-import { fKey } from '@/lib/composable/useFriendsQuery';
+import { fKey } from '@/lib/composable/query/useFriendsQuery';
 
 const props = defineProps<{
   user: UserResponse;

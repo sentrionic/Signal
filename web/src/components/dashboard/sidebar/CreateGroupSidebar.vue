@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import FormField from '@/components/form/FormField.vue';
 import FormButton from '@/components/form/FormButton.vue';
 import TypeaheadInputVue from '@/components/common/TypeaheadInput.vue';
-import { useFriendsQuery } from '@/lib/composable/useFriendsQuery';
+import { useFriendsQuery } from '@/lib/composable/query/useFriendsQuery';
 import type { ChatResponse, CreateGroupDto, UserResponse } from '@/lib/api';
 import AddImageIcon from '../../icons/AddImageIcon.vue';
 import IconButton from '@/components/common/IconButton.vue';
@@ -15,7 +15,7 @@ import { useRouter } from 'vue-router';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { SidebarMode } from '@/lib/models/sidebar-mode';
 import { useQueryClient } from 'vue-query';
-import { cKey } from '@/lib/composable/useChatsQuery';
+import { cKey } from '@/lib/composable/query/useChatsQuery';
 
 const { data } = useFriendsQuery();
 const { setMode } = useSidebarStore();

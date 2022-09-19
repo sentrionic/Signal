@@ -16,6 +16,7 @@ import { BufferFile } from '../common/types/buffer.file';
 import { FilesService } from '../files/file.service';
 import { MessageResponse } from './dto/message.response';
 import { MessageType } from './entities/message-type.enum';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable()
 export class MessagesService {
@@ -27,6 +28,7 @@ export class MessagesService {
     @InjectRepository(Chat)
     private chatRepository: EntityRepository<Chat>,
     private filesService: FilesService,
+    private readonly socketService: SocketService,
   ) {}
 
   async createMessage(
@@ -72,6 +74,8 @@ export class MessagesService {
     }
 
     await this.messageRepository.persistAndFlush(message);
+
+    this.socketService.sendMessage(chatId, message.toResponse());
 
     return true;
   }

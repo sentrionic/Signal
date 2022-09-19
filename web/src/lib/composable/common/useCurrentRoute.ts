@@ -1,6 +1,6 @@
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import { useChatsQuery } from './useChatsQuery';
+import { useChatsQuery } from '../query/useChatsQuery';
 
 export function useCurrentRoute() {
   const route = useRoute();
