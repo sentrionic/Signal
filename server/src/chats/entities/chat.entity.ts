@@ -50,10 +50,19 @@ export class Chat {
       type: this.type,
       user,
       group: this.group?.toGroupResponse(this.members.count()) || null,
-      lastMessage:
-        (message?.type === MessageType.TEXT
-          ? message.text
-          : message?.attachment?.url ?? 'Sent a file') || null,
+      lastMessage: this.getLastMessage(message),
     };
+  }
+
+  getLastMessage(message?: Message): string | null {
+    if (!message) return null;
+    switch (message.type) {
+      case MessageType.TEXT:
+        return message.text ?? null;
+      case MessageType.IMAGE:
+        return message.attachment?.filename ?? 'Sent a file';
+      default:
+        return null;
+    }
   }
 }

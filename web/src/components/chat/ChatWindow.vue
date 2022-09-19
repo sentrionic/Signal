@@ -2,18 +2,22 @@
 import type { ChatResponse, MessageResponse } from '@/lib/api';
 import { useMessagesQuery } from '@/lib/composable/useMessagesQuery';
 import { useUserStore } from '@/stores/userStore';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { checkNewDay, formatDivider } from '@/lib/utils/dateUtils';
 import TextMessageItem from '../items/TextMessageItem.vue';
 import ImageMessageItem from '../items/ImageMessageItem.vue';
 import InfiniteScroll from './InfiniteScroll.vue';
 import SpinnerIcon from '../icons/SpinnerIcon.vue';
 import GreetingMessage from './GreetingMessage.vue';
+import { getSocket } from '@/lib/composable/useSocket';
 
 const props = defineProps<{ chat: ChatResponse }>();
 
 const { data, hasMore, fetchNextPage, isLoading } = useMessagesQuery(props.chat.id);
 const { user } = useUserStore();
+
+const socket = getSocket();
+socket.emit('joinRoom', props.chat.id);
 
 const messages = computed(() => {
   return data.value ? data.value?.pages.map((p) => p.map((mr) => mr)).flat() : [];

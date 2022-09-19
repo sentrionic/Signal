@@ -18,6 +18,7 @@
     "flowbite": "^1.5.3",
     "ky": "^0.31.3",
     "pinia": "^2.0.22",
+    "socket.io-client": "^4.5.2",
     "vee-validate": "^4.6.7",
     "vue": "^3.2.39",
     "vue-query": "^1.26.0",
