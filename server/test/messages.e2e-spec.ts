@@ -65,9 +65,8 @@ describe('MessagesController (e2e)', () => {
 
       for (let i = 0; i < 10; i++) {
         const u = new User(`user-${i}@example.com`, `User #${i}`, 'password');
-        const message = new Message(i % 2 === 0 ? u : current);
+        const message = new Message(i % 2 === 0 ? u : current, chat);
         message.text = `Text Message #${i}`;
-        message.chat = chat;
         // Add some difference for cursor
         message.sentAt.setMinutes(message.sentAt.getMinutes() + i);
         messages.push(message);
@@ -213,9 +212,8 @@ describe('MessagesController (e2e)', () => {
     let message: Message;
 
     beforeEach(async () => {
-      message = new Message(current);
+      message = new Message(current, chat);
       message.text = `Text Message`;
-      message.chat = chat;
       await em.persistAndFlush(message);
     });
 
@@ -296,9 +294,8 @@ describe('MessagesController (e2e)', () => {
     let message: Message;
 
     beforeEach(async () => {
-      message = new Message(current);
+      message = new Message(current, chat);
       message.text = `Text Message`;
-      message.chat = chat;
       await em.persistAndFlush(message);
     });
 
@@ -328,6 +325,7 @@ describe('MessagesController (e2e)', () => {
     expect(message.text).toBeDefined();
     expect(message.user).toBeDefined();
     expect(message.sentAt).toBeDefined();
+    expect(message.updatedAt).toBeDefined();
   };
 
   afterEach(async () => {
