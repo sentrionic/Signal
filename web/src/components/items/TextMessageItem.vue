@@ -69,7 +69,9 @@ const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModal
     <p :class="isAuthor ? 'text-right' : ''">
       {{ message.text }}
     </p>
-    <p class="text-right text-xs text-grey-dark mt-1">{{ formatSentAt(message.sentAt) }}</p>
+    <p class="text-right text-xs text-grey-dark mt-1">{{ formatSentAt(message.sentAt) }}
+    <p v-if="message.sentAt !== message.updatedAt" class="text-xs text-grey-dark">Edited</p>
+    </p>
   </div>
   <ContextMenu
     :elementId="'messageMenu-' + message.id"

@@ -89,7 +89,7 @@ export interface ChatResponse {
   type: 'GROUP CHAT' | 'DIRECT CHAT';
   user: UserResponse | null;
   group: GroupResponse | null;
-  lastMessage: string | null;
+  lastMessage: MessageResponse | null;
 }
 
 export interface ChatDto {
@@ -118,6 +118,7 @@ export interface MessageResponse {
   user: UserResponse;
   attachment: AttachmentResponse | null;
   sentAt: string;
+  updatedAt: string;
   deliveredAt: string | null;
   seenAt: string | null;
 }

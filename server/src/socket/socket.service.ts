@@ -55,4 +55,22 @@ export class SocketService {
   sendMessage(room: string, message: MessageResponse) {
     this.server.to(room).emit('new_message', message);
   }
+
+  /**
+   * Emits an "edit_message" event
+   * @param room The id of the room
+   * @param message The edited message
+   */
+  editMessage(room: string, message: MessageResponse) {
+    this.server.to(room).emit('edit_message', message);
+  }
+
+  /**
+   * Emits a "delete_message" event
+   * @param room The id of the room
+   * @param id The id of the deleted message
+   */
+  deleteMessage(room: string, id: string) {
+    this.server.to(room).emit('delete_message', id);
+  }
 }

@@ -9,6 +9,8 @@ import { setupSession } from '../common/config/sessionMiddleware';
 import { ConfigService } from '@nestjs/config';
 import * as sharedsession from 'express-socket.io-session';
 import { SocketService } from './socket.service';
+import { WsAuthGuard } from '../common/guards/ws.auth.guard';
+import { UseGuards } from '@nestjs/common';
 
 @WebSocketGateway({
   namespace: '/ws',
@@ -31,11 +33,13 @@ export class AppGateway implements OnGatewayInit {
   }
 
   @SubscribeMessage('joinChat')
+  @UseGuards(WsAuthGuard)
   handleChatJoin(client: Socket, room: string): void {
     this.socketService.joinChat(client, room);
   }
 
   @SubscribeMessage('leaveChat')
+  @UseGuards(WsAuthGuard)
   handleChatLeave(client: Socket, room: string): void {
     client.leave(room);
   }

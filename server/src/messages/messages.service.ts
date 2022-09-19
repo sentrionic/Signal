@@ -59,8 +59,7 @@ export class MessagesService {
       throw new BadRequestException({ message: 'Either a message or a file is required' });
     }
 
-    const message = new Message(user);
-    message.chat = chat;
+    const message = new Message(user, chat);
 
     if (file) {
       const { originalname, mimetype } = await file;
@@ -133,8 +132,11 @@ export class MessagesService {
     }
 
     message.text = input.text;
+    message.updatedAt = new Date();
 
     await this.messageRepository.flush();
+
+    this.socketService.editMessage(message.chat.id, message.toResponse());
 
     return true;
   }
@@ -158,6 +160,8 @@ export class MessagesService {
     }
 
     await this.messageRepository.nativeDelete({ id });
+
+    this.socketService.deleteMessage(message.chat.id, id);
 
     return true;
   }

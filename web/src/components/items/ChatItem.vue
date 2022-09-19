@@ -1,9 +1,23 @@
 <script setup lang="ts">
 import type { ChatResponse } from '@/lib/api';
 import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
+import { computed } from 'vue';
 
 const { id } = useCurrentRoute();
-defineProps<{ chat: ChatResponse }>();
+const props = defineProps<{ chat: ChatResponse }>();
+
+const formatLastMessage = computed(() => {
+  const message = props.chat.lastMessage;
+  if (!message) return null;
+  switch (message.type) {
+    case 'TEXT':
+      return message.text ?? null;
+    case 'IMAGE':
+      return message.attachment?.filename ?? 'Sent a file';
+    default:
+      return null;
+  }
+});
 </script>
 
 <template>
@@ -35,7 +49,7 @@ defineProps<{ chat: ChatResponse }>();
             :class="chat.id === id ? 'text-gray-300' : 'text-gray-500'"
             class="text-gray-500 truncate dark:text-gray-400 w-52 lg:w-80"
           >
-            {{ chat.lastMessage }}
+            {{ formatLastMessage }}
           </p>
         </div>
       </div>

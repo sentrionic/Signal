@@ -14,7 +14,6 @@ import { UserResponse } from '../../friends/dto/user.response';
 import { ChatType } from './chat-type.enum';
 import { Group } from '../../groups/entities/group.entity';
 import { Message } from '../../messages/entities/message.entity';
-import { MessageType } from '../../messages/entities/message-type.enum';
 
 @Entity()
 export class Chat {
@@ -44,25 +43,12 @@ export class Chat {
   }
 
   toChatResponse(user?: UserResponse | null): ChatResponse {
-    const message = this.messages.getItems().at(-1);
     return {
       id: this.id,
       type: this.type,
       user,
       group: this.group?.toGroupResponse(this.members.count()) || null,
-      lastMessage: this.getLastMessage(message),
+      lastMessage: this.messages.getItems().at(-1)?.toResponse() || null,
     };
-  }
-
-  getLastMessage(message?: Message): string | null {
-    if (!message) return null;
-    switch (message.type) {
-      case MessageType.TEXT:
-        return message.text ?? null;
-      case MessageType.IMAGE:
-        return message.attachment?.filename ?? 'Sent a file';
-      default:
-        return null;
-    }
   }
 }

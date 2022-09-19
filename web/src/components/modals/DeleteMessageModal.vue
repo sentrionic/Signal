@@ -37,12 +37,12 @@ const handleSubmit = async () => {
             <p class="text-gray-500">Are you sure you want to delete this message?</p>
             <div
               v-if="message.type === 'TEXT'"
-              class="py-2 px-4 m-2 rounded-2xl shadow-sm bg-slate-500 text-white"
+              class="py-2 px-4 m-2 w-fit rounded-2xl shadow-sm bg-slate-500 text-white"
             >
-              <p class="text-right truncate sm:max-w-xs xl:max-w-sm">
+              <p class="truncate sm:max-w-xs xl:max-w-sm">
                 {{ message.text }}
               </p>
-              <p class="text-right text-xs text-grey-dark mt-1">
+              <p class="text-xs text-grey-dark mt-1">
                 {{ formatSentAt(message.sentAt) }}
               </p>
             </div>
