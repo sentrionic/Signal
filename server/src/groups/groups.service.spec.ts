@@ -12,12 +12,17 @@ import { validate } from 'uuid';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { Chat } from '../chats/entities/chat.entity';
 import { getMockChat, getMockGroupChat } from '../chats/mocks/chat.mock';
+import { SocketService } from '../socket/socket.service';
+import { ConfigService } from '@nestjs/config';
+import { mockConfigService } from '../messages/mock/config.service.mock';
+import { mockSocketService } from '../messages/mock/socket.service.mock';
 
 describe('GroupsService', () => {
   let service: GroupsService;
   let current: User;
   let group: Group;
   let chat: Chat;
+  let socketService: SocketService;
 
   const userRepository = {
     find: jest.fn(),
@@ -42,6 +47,14 @@ describe('GroupsService', () => {
       providers: [
         GroupsService,
         {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: SocketService,
+          useValue: mockSocketService,
+        },
+        {
           provide: getRepositoryToken(User),
           useValue: userRepository,
         },
@@ -57,10 +70,15 @@ describe('GroupsService', () => {
     }).compile();
 
     service = module.get<GroupsService>(GroupsService);
+    socketService = module.get<SocketService>(SocketService);
     current = userMock;
     chat = getMockGroupChat();
     group = getMockGroup();
     chat.group = group;
+  });
+
+  it('should confirm the test setup works', () => {
+    expect(service).toBeDefined();
   });
 
   describe('CreateGroupChat', () => {
@@ -91,9 +109,13 @@ describe('GroupsService', () => {
 
       jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true).mockReturnValueOnce(false);
       jest.spyOn(chat.members, 'add').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'addMember').mockReturnValue();
+      const socketSpySend = jest.spyOn(socketService, 'sendChat').mockReturnValue();
 
       const response = await service.addUserToGroup(current.id, member.username, chat.id);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
+      expect(socketSpySend).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the group chat cannot be found', async () => {
@@ -167,9 +189,11 @@ describe('GroupsService', () => {
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
       jest.spyOn(chat.members, 'remove').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'removeMember').mockReturnValue();
 
       const response = await service.leaveGroup(current.id, chat.id);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the group chat cannot be found', async () => {

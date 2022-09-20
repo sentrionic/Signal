@@ -1,4 +1,4 @@
-import type { ChatResponse, MessageResponse } from '@/lib/api';
+import type { ChatResponse, MessageResponse, UserResponse } from '@/lib/api';
 import { useChatStore } from '@/stores/chatStore';
 import { useUserStore } from '@/stores/userStore';
 import { onMounted, onUnmounted } from 'vue';
@@ -100,6 +100,40 @@ export function useChatSocket(chatId: string) {
 
     socket.on('removeFromTyping', (name: string) => {
       if (user?.displayName !== name) removeTyping(name);
+    });
+
+    socket.on('addMember', (_: UserResponse) => {
+      cache.setQueryData<ChatResponse[]>([cKey], (old) => {
+        if (!old) return [];
+        return old.map((c) =>
+          c.id === chatId && c.group
+            ? {
+                ...c,
+                group: {
+                  ...c.group,
+                  memberCount: c.group.memberCount + 1,
+                },
+              }
+            : c
+        );
+      });
+    });
+
+    socket.on('removeMember', (_: string) => {
+      cache.setQueryData<ChatResponse[]>([cKey], (old) => {
+        if (!old) return [];
+        return old.map((c) =>
+          c.id === chatId && c.group
+            ? {
+                ...c,
+                group: {
+                  ...c.group,
+                  memberCount: c.group.memberCount - 1,
+                },
+              }
+            : c
+        );
+      });
     });
   });
 

@@ -6,6 +6,7 @@ import { Chat } from '../chats/entities/chat.entity';
 import { MessageResponse } from '../messages/dto/message.response';
 import { RequestResponse } from '../friends/dto/request.response';
 import { UserResponse } from '../friends/dto/user.response';
+import { ChatResponse } from '../chats/dto/chat.response';
 
 @Injectable()
 export class SocketService {
@@ -130,5 +131,32 @@ export class SocketService {
   removeFriend(userId: string, friendId: string) {
     this.server.to(userId).emit('removeFriend', friendId);
     this.server.to(friendId).emit('removeFriend', userId);
+  }
+
+  /**
+   * Emits an "sendChat" event
+   * @param room The id of the user that was added
+   * @param chat The new chat
+   */
+  sendChat(room: string, chat: ChatResponse) {
+    this.server.to(room).emit('sendChat', chat);
+  }
+
+  /**
+   * Emits an "addMember" event
+   * @param room The id of the room
+   * @param user The new user
+   */
+  addMember(room: string, user: UserResponse) {
+    this.server.to(room).emit('addMember', user);
+  }
+
+  /**
+   * Emits a "removeMember" event
+   * @param room The id of the room
+   * @param userId The id of the user
+   */
+  removeMember(room: string, userId: string) {
+    this.server.to(room).emit('removeMember', userId);
   }
 }

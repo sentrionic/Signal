@@ -11,6 +11,7 @@ import { Group } from './entities/group.entity';
 import { Chat } from '../chats/entities/chat.entity';
 import { ChatType } from '../chats/entities/chat-type.enum';
 import { ChatResponse } from '../chats/dto/chat.response';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable()
 export class GroupsService {
@@ -21,6 +22,7 @@ export class GroupsService {
     private groupRepository: EntityRepository<Group>,
     @InjectRepository(Chat)
     private chatRepository: EntityRepository<Chat>,
+    private readonly socketService: SocketService,
   ) {}
 
   async createGroupChat(current: string, name: string, ids: string[]): Promise<ChatResponse> {
@@ -40,7 +42,10 @@ export class GroupsService {
 
   async addUserToGroup(currentId: string, username: string, chatId: string): Promise<boolean> {
     const current = await this.userRepository.getReference(currentId);
-    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne(
+      { id: chatId },
+      { populate: ['members', 'messages', 'group'] },
+    );
 
     if (!chat) {
       throw new NotFoundException();
@@ -68,6 +73,9 @@ export class GroupsService {
 
     await this.chatRepository.flush();
 
+    this.socketService.sendChat(member.id, chat.toChatResponse());
+    this.socketService.addMember(chat.id, member.toUserResponse());
+
     return true;
   }
 
@@ -86,6 +94,8 @@ export class GroupsService {
     chat.members.remove(current);
 
     await this.chatRepository.flush();
+
+    this.socketService.removeMember(chat.id, currentId);
 
     return true;
   }
