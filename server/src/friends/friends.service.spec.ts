@@ -6,11 +6,16 @@ import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { User } from '../users/entities/user.entity';
 import { getMockUser } from '../users/mocks/user.mock';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { mockConfigService } from '../messages/mock/config.service.mock';
+import { SocketService } from '../socket/socket.service';
+import { mockSocketService } from '../messages/mock/socket.service.mock';
+import { ConfigService } from '@nestjs/config';
 
 describe('FriendsService', () => {
   let service: FriendsService;
   let current: User;
   let receiver: User;
+  let socketService: SocketService;
 
   const repository = {
     findOne: jest.fn(),
@@ -22,6 +27,14 @@ describe('FriendsService', () => {
       providers: [
         FriendsService,
         {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: SocketService,
+          useValue: mockSocketService,
+        },
+        {
           provide: getRepositoryToken(User),
           useValue: repository,
         },
@@ -29,6 +42,7 @@ describe('FriendsService', () => {
     }).compile();
 
     service = module.get<FriendsService>(FriendsService);
+    socketService = module.get<SocketService>(SocketService);
 
     current = getMockUser();
     receiver = getMockUser();
@@ -36,12 +50,18 @@ describe('FriendsService', () => {
     repository.findOne = jest.fn().mockReturnValueOnce(current).mockReturnValueOnce(receiver);
   });
 
+  it('should confirm the test setup works', () => {
+    expect(service).toBeDefined();
+  });
+
   describe('AddFriendRequest', () => {
     it('should return true on successful execution', async () => {
       jest.spyOn(current.outgoingRequests, 'add').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'addRequest').mockReturnValue();
 
       const response = await service.addFriendRequest(current.id, receiver.username);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a BadRequestException if both IDs are equal', async () => {
@@ -66,9 +86,11 @@ describe('FriendsService', () => {
       jest.spyOn(current.incomingRequests, 'remove').mockReturnValue();
       jest.spyOn(current.friends, 'add').mockReturnValue();
       jest.spyOn(receiver.friends, 'add').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'addFriend').mockReturnValue();
 
       const response = await service.addFriendRequest(current.id, receiver.id);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if a user cannot be found for the given ID', async () => {
@@ -86,9 +108,11 @@ describe('FriendsService', () => {
       jest.spyOn(current.incomingRequests, 'remove').mockReturnValue();
       jest.spyOn(current.friends, 'add').mockReturnValue();
       jest.spyOn(receiver.friends, 'add').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'addFriend').mockReturnValue();
 
       const response = await service.acceptFriendRequest(current.id, receiver.id);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a BadRequestException if both IDs are equal', async () => {
@@ -215,9 +239,11 @@ describe('FriendsService', () => {
       jest.spyOn(current.friends, 'contains').mockReturnValue(true);
       jest.spyOn(current.friends, 'remove').mockReturnValue();
       jest.spyOn(receiver.friends, 'remove').mockReturnValue();
+      const socketSpy = jest.spyOn(socketService, 'removeFriend').mockReturnValue();
 
       const response = await service.removeFriend(current.id, receiver.id);
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a BadRequestException if both IDs are equal', async () => {

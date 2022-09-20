@@ -223,9 +223,11 @@ describe('MessagesService', () => {
     it('should successfully update the message and return true', async () => {
       message.user = current;
       messageRepository.findOne = jest.fn().mockReturnValue(message);
+      const socketSpy = jest.spyOn(socketService, 'editMessage').mockReturnValue();
 
       const response = await service.updateMessage(current.id, message.id, { text: 'New Text' });
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the message cannot be found', () => {
