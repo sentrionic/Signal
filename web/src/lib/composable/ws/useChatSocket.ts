@@ -105,5 +105,6 @@ export function useChatSocket(chatId: string) {
 
   onUnmounted(() => {
     socket.emit('leaveChat', chatId);
+    socket.disconnect();
   });
 }

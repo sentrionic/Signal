@@ -31,7 +31,7 @@ const handleSubmit = async () => {
 
 <template>
   <ModalWrapper>
-    <div class="bg-white px-4 pt-5 pb-4">
+    <div class="bg-white dark:bg-menuDark px-4 pt-5 pb-4">
       <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Add Contact</h3>
       <form class="space-y-6" @submit.prevent="handleSubmit">
         <FormField
@@ -43,7 +43,7 @@ const handleSubmit = async () => {
         />
       </form>
     </div>
-    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+    <div class="bg-gray-50 dark:bg-gray-900 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
       <button type="button" @click="handleSubmit" class="btn-primary">Add User</button>
       <button type="button" @click="onClose" class="btn-cancel">Cancel</button>
     </div>

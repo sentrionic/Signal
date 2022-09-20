@@ -32,6 +32,17 @@ export class AppGateway implements OnGatewayInit {
     server.use(sharedsession(await setupSession(this.configService)));
   }
 
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('joinUser')
+  handleUserJoin(client: Socket, room: string): void {
+    client.join(room);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleRoomLeave(client: Socket, room: string): void {
+    client.leave(room);
+  }
+
   @SubscribeMessage('joinChat')
   @UseGuards(WsAuthGuard)
   handleChatJoin(client: Socket, room: string): void {

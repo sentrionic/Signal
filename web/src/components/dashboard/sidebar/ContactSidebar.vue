@@ -8,20 +8,14 @@ import RemoveFriendModal from '../../modals/RemoveFriendModal.vue';
 import { useFriendsQuery } from '@/lib/composable/query/useFriendsQuery';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
-import { getOrCreateChat } from '@/lib/api/handler/chats';
-import { useRouter } from 'vue-router';
-import { SidebarMode } from '@/lib/models/sidebar-mode';
-import { cKey, useChatsQuery } from '@/lib/composable/query/useChatsQuery';
-import { useQueryClient } from 'vue-query';
-import type { ChatResponse } from '@/lib/api';
 import ContactItem from '../../items/ContactItem.vue';
+import { useFriendSocket } from '@/lib/composable/ws/useFriendSocket';
 
 const { data } = useFriendsQuery();
-const { data: chatData } = useChatsQuery();
 const store = useSidebarStore();
 const { query } = storeToRefs(store);
-const router = useRouter();
-const cache = useQueryClient();
+
+useFriendSocket();
 
 const isAddFriendVisible = ref(false);
 const isRemoveFriendVisible = ref(false);
@@ -43,27 +37,6 @@ const optionClicked = (event: ContextMenuSelection) => {
   if (event.option.name === 'Remove Friend') onToggleRemoveFriend();
 };
 
-const handleClick = async (id: string) => {
-  const contact = chatData.value?.find((e) => e.user?.id === id);
-
-  if (contact) {
-    router.push({ name: 'dashboard', params: { id: contact.id } });
-    store.setMode(SidebarMode.MESSAGES);
-  } else {
-    try {
-      const response = await getOrCreateChat(id);
-      cache.setQueryData<ChatResponse[]>(cKey, (old) => {
-        if (!old) return [];
-        return [response, ...old];
-      });
-      router.push({ name: 'dashboard', params: { id: response.id } });
-      store.setMode(SidebarMode.MESSAGES);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-};
-
 const filteredList = computed(() => {
   return data.value?.filter((e) =>
     e.displayName.toLocaleLowerCase().includes(query.value.toLocaleLowerCase())
@@ -81,8 +54,7 @@ const filteredList = computed(() => {
         v-else
         v-for="friend in filteredList"
         :key="friend.id"
-        @click="handleClick(friend.id)"
-        @contextmenu.prevent.stop="handleContextMenu($event, friend.id)"
+        @contextmenu.prevent="handleContextMenu($event, friend.id)"
       >
         <li>
           <ContactItem :friend="friend" />

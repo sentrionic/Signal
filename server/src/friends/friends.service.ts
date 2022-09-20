@@ -5,6 +5,7 @@ import { EntityRepository } from '@mikro-orm/core';
 import { UserResponse } from './dto/user.response';
 import { RequestResponse } from './dto/request.response';
 import { RequestType } from './entities/request.enum';
+import { SocketService } from '../socket/socket.service';
 
 type Associations = ('incomingRequests' | 'outgoingRequests' | 'friends')[];
 
@@ -13,6 +14,7 @@ export class FriendsService {
   constructor(
     @InjectRepository(User)
     private userRepository: EntityRepository<User>,
+    private readonly socketService: SocketService,
   ) {}
 
   async addFriendRequest(currentId: string, username: string): Promise<boolean> {
@@ -46,12 +48,19 @@ export class FriendsService {
 
       await this.userRepository.flush();
 
+      this.socketService.addFriend(current.toUserResponse(), receiver.toUserResponse());
+
       return true;
     }
 
     current.outgoingRequests.add(receiver);
 
     await this.userRepository.flush();
+
+    this.socketService.addRequest(receiver.id, {
+      user: current.toUserResponse(),
+      type: RequestType.INCOMING,
+    });
 
     return true;
   }
@@ -72,6 +81,7 @@ export class FriendsService {
       receiver.friends.add(current);
 
       await this.userRepository.flush();
+      this.socketService.addFriend(current.toUserResponse(), receiver.toUserResponse());
 
       return true;
     }
@@ -136,6 +146,8 @@ export class FriendsService {
       receiver.friends.remove(current);
 
       await this.userRepository.flush();
+
+      this.socketService.removeFriend(receiver.id, current.id);
     }
 
     return true;

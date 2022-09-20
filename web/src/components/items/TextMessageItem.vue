@@ -59,7 +59,11 @@ const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModal
 
 <template>
   <div
-    :class="isAuthor ? 'bg-slate-500 dark:bg-slate-800 text-white' : 'bg-white dark:bg-bgDark dark:text-white'"
+    :class="
+      isAuthor
+        ? 'bg-slate-500 dark:bg-slate-800 text-white'
+        : 'bg-white dark:bg-bgDark dark:text-white'
+    "
     class="py-2 px-4 m-2 rounded-2xl shadow-sm w-fit max-w-lg"
     @contextmenu.prevent.stop="handleContextMenu($event, message.id)"
   >
@@ -69,9 +73,8 @@ const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModal
     <p :class="isAuthor ? 'text-right' : ''">
       {{ message.text }}
     </p>
-    <p class="text-right text-xs text-grey-dark mt-1">{{ formatSentAt(message.sentAt) }}
+    <p class="text-right text-xs text-grey-dark mt-1">{{ formatSentAt(message.sentAt) }}</p>
     <p v-if="message.sentAt !== message.updatedAt" class="text-xs text-grey-dark">Edited</p>
-    </p>
   </div>
   <ContextMenu
     :elementId="'messageMenu-' + message.id"

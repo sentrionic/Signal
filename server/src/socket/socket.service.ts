@@ -4,6 +4,8 @@ import { MikroORM, UseRequestContext } from '@mikro-orm/core';
 import { WsException } from '@nestjs/websockets';
 import { Chat } from '../chats/entities/chat.entity';
 import { MessageResponse } from '../messages/dto/message.response';
+import { RequestResponse } from '../friends/dto/request.response';
+import { UserResponse } from '../friends/dto/user.response';
 
 @Injectable()
 export class SocketService {
@@ -48,7 +50,7 @@ export class SocketService {
   }
 
   /**
-   * Emits a "new_message" event
+   * Emits a "newMessage" event
    * @param room The id of the room
    * @param message The new message
    */
@@ -57,7 +59,7 @@ export class SocketService {
   }
 
   /**
-   * Emits an "edit_message" event
+   * Emits an "editMessage" event
    * @param room The id of the room
    * @param message The edited message
    */
@@ -66,7 +68,7 @@ export class SocketService {
   }
 
   /**
-   * Emits a "delete_message" event
+   * Emits a "deleteMessage" event
    * @param room The id of the room
    * @param id The id of the deleted message
    */
@@ -90,5 +92,43 @@ export class SocketService {
    */
   stopTyping(room: string, username: string) {
     this.server.to(room).emit('removeFromTyping', username);
+  }
+
+  /**
+   * Emits an "sendRequest" event
+   * @param room
+   */
+  sendRequest(room: string) {
+    this.server.to(room).emit('sendRequest');
+  }
+
+  /**
+   * Emits an "addRequest" event
+   * @param room
+   * @param request
+   */
+  addRequest(room: string, request: RequestResponse) {
+    this.sendRequest(room);
+    this.server.to(room).emit('addRequest', request);
+  }
+
+  /**
+   * Emits an "addFriend" event
+   * @param current
+   * @param friend
+   */
+  addFriend(current: UserResponse, friend: UserResponse) {
+    this.server.to(friend.id).emit('addFriend', current);
+    this.server.to(current.id).emit('addFriend', friend);
+  }
+
+  /**
+   * Emits an "removeFriend" event
+   * @param userId
+   * @param friendId
+   */
+  removeFriend(userId: string, friendId: string) {
+    this.server.to(userId).emit('removeFriend', friendId);
+    this.server.to(friendId).emit('removeFriend', userId);
   }
 }

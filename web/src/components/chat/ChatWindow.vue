@@ -39,7 +39,11 @@ const isNewDay = (message: MessageResponse, index: number): boolean => {
   <div v-else-if="messages?.length === 0" class="justify-center flex my-4 text-center">
     <GreetingMessage :chat="chat" />
   </div>
-  <div v-else class="p-4 overflow-y-auto flex flex-col-reverse scrollbar-css" ref="scrollComponent">
+  <div
+    v-else
+    class="py-4 px-8 overflow-y-auto flex flex-col-reverse scrollbar-css"
+    ref="scrollComponent"
+  >
     <ul v-for="(message, index) in messages" :key="message.id" class="pb-2 w-full">
       <div v-if="isNewDay(message, index)" class="flex justify-center my-4">
         <p class="text-center bg-black/40 p-2 rounded-xl text-white w-fit">
