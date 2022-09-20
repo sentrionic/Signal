@@ -43,4 +43,20 @@ export class AppGateway implements OnGatewayInit {
   handleChatLeave(client: Socket, room: string): void {
     client.leave(room);
   }
+
+  @SubscribeMessage('startTyping')
+  @UseGuards(WsAuthGuard)
+  handleStartTyping(_: Socket, data: string[]): void {
+    const room = data[0];
+    const username = data[1];
+    this.socketService.addTyping(room, username);
+  }
+
+  @SubscribeMessage('stopTyping')
+  @UseGuards(WsAuthGuard)
+  handleStopTyping(_: Socket, data: string[]): void {
+    const room = data[0];
+    const username = data[1];
+    this.socketService.stopTyping(room, username);
+  }
 }

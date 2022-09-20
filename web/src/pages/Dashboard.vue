@@ -38,7 +38,7 @@ export default {
     grid-template:
       'sidebar-header header info-header' 56px
       'sidebar main info' 1fr
-      'sidebar footer info' 75px / 300px 1fr;
+      'sidebar footer info' 85px / 300px 1fr;
     height: 100vh;
 
     @apply bg-white dark:bg-bgDark;
@@ -51,7 +51,7 @@ export default {
     grid-template:
       'sidebar-header header info-header' 56px
       'sidebar main info' 1fr
-      'sidebar footer info' 75px / 420px 1fr;
+      'sidebar footer info' 85px / 420px 1fr;
     height: 100vh;
 
     @apply bg-white dark:bg-bgDark;
@@ -64,7 +64,7 @@ export default {
     grid-template:
       'sidebar-header header info-header' 56px
       'sidebar main info' 1fr
-      'sidebar footer info' 75px / 200px 1fr 200px;
+      'sidebar footer info' 85px / 200px 1fr 200px;
     height: 100vh;
 
     @apply bg-white dark:bg-bgDark;
@@ -77,7 +77,7 @@ export default {
     grid-template:
       'sidebar-header header info-header' 56px
       'sidebar main info' 1fr
-      'sidebar footer info' 75px / 300px 1fr 300px;
+      'sidebar footer info' 85px / 300px 1fr 300px;
     height: 100vh;
 
     @apply bg-white dark:bg-bgDark;
@@ -90,7 +90,7 @@ export default {
     grid-template:
       'sidebar-header header info-header' 56px
       'sidebar main info' 1fr
-      'sidebar footer info' 75px / 420px 1fr 420px;
+      'sidebar footer info' 85px / 420px 1fr 420px;
     height: 100vh;
 
     @apply bg-white dark:bg-bgDark;

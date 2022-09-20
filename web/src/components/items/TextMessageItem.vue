@@ -59,7 +59,7 @@ const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModal
 
 <template>
   <div
-    :class="isAuthor ? 'bg-slate-500 text-white' : 'bg-white'"
+    :class="isAuthor ? 'bg-slate-500 dark:bg-slate-800 text-white' : 'bg-white dark:bg-bgDark dark:text-white'"
     class="py-2 px-4 m-2 rounded-2xl shadow-sm w-fit max-w-lg"
     @contextmenu.prevent.stop="handleContextMenu($event, message.id)"
   >

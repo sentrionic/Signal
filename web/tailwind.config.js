@@ -27,6 +27,8 @@ module.exports = {
         bgDark: '#212121',
         menuDark: '#222222',
         formDark: '#181818',
+        contextLight: '#ecf0f1',
+        contextItem: '#333',
       },
     },
     fontFamily: {

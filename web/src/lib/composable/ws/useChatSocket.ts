@@ -1,7 +1,9 @@
 import type { ChatResponse, MessageResponse } from '@/lib/api';
+import { useChatStore } from '@/stores/chatStore';
+import { useUserStore } from '@/stores/userStore';
 import { onMounted, onUnmounted } from 'vue';
 import { useQueryClient } from 'vue-query';
-import { getSocket } from '../common/useSocket';
+import { useSocket } from '../common/useSocket';
 import { cKey } from '../query/useChatsQuery';
 import { mKey } from '../query/useMessagesQuery';
 
@@ -13,13 +15,16 @@ interface InfiniteData<TData> {
 
 export function useChatSocket(chatId: string) {
   const cache = useQueryClient();
+  const { addTyping, removeTyping, resetTyping } = useChatStore();
+  const { user } = useUserStore();
 
-  const socket = getSocket();
+  const socket = useSocket();
+  resetTyping();
 
   onMounted(() => {
     socket.emit('joinChat', chatId);
 
-    socket.on('new_message', (newMessage: MessageResponse) => {
+    socket.on('newMessage', (newMessage: MessageResponse) => {
       // Update chat cache
       cache.setQueryData<InfiniteData<MessageResponse[]>>([mKey, chatId], (old) => {
         if (!old) return { pages: [], pageParams: [] };
@@ -29,14 +34,16 @@ export function useChatSocket(chatId: string) {
         };
       });
 
-      // Update last message of the current chat
+      // Update last message of the current chat and move it to the top if necessary
       cache.setQueryData<ChatResponse[]>([cKey], (old) => {
         if (!old) return [];
-        return old.map((c) => (c.id === chatId ? { ...c, lastMessage: newMessage } : c));
+        const chat = old.find((c) => c.id === chatId);
+        if (!chat) return [...old];
+        return [{ ...chat, lastMessage: newMessage }, ...old.filter((c) => c.id !== chatId)];
       });
     });
 
-    socket.on('edit_message', (updatedMessage: MessageResponse) => {
+    socket.on('editMessage', (updatedMessage: MessageResponse) => {
       // Update chat cache
       cache.setQueryData<InfiniteData<MessageResponse[]>>([mKey, chatId], (old) => {
         if (!old) return { pages: [], pageParams: [] };
@@ -63,7 +70,7 @@ export function useChatSocket(chatId: string) {
       });
     });
 
-    socket.on('delete_message', (messageId: string) => {
+    socket.on('deleteMessage', (messageId: string) => {
       // Update chat cache
       cache.setQueryData<InfiniteData<MessageResponse[]>>([mKey, chatId], (old) => {
         if (!old) return { pages: [], pageParams: [] };
@@ -85,6 +92,14 @@ export function useChatSocket(chatId: string) {
             : c
         );
       });
+    });
+
+    socket.on('addToTyping', (name: string) => {
+      if (user?.displayName !== name) addTyping(name);
+    });
+
+    socket.on('removeFromTyping', (name: string) => {
+      if (user?.displayName !== name) removeTyping(name);
     });
   });
 

@@ -53,7 +53,7 @@ export class SocketService {
    * @param message The new message
    */
   sendMessage(room: string, message: MessageResponse) {
-    this.server.to(room).emit('new_message', message);
+    this.server.to(room).emit('newMessage', message);
   }
 
   /**
@@ -62,7 +62,7 @@ export class SocketService {
    * @param message The edited message
    */
   editMessage(room: string, message: MessageResponse) {
-    this.server.to(room).emit('edit_message', message);
+    this.server.to(room).emit('editMessage', message);
   }
 
   /**
@@ -71,6 +71,24 @@ export class SocketService {
    * @param id The id of the deleted message
    */
   deleteMessage(room: string, id: string) {
-    this.server.to(room).emit('delete_message', id);
+    this.server.to(room).emit('deleteMessage', id);
+  }
+
+  /**
+   * Emits an "addToTyping" event
+   * @param room
+   * @param username
+   */
+  addTyping(room: string, username: string) {
+    this.server.to(room).emit('addToTyping', username);
+  }
+
+  /**
+   * Emits an "removeFromTyping" event
+   * @param room
+   * @param username
+   */
+  stopTyping(room: string, username: string) {
+    this.server.to(room).emit('removeFromTyping', username);
   }
 }
