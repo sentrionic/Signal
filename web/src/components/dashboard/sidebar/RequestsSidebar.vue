@@ -4,13 +4,10 @@ import { computed } from 'vue';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
 import RequestItem from '../../items/RequestItem.vue';
-import { useRequestSocket } from '@/lib/composable/ws/useRequestSocket';
 
 const { data } = useRequestsQuery();
 const store = useSidebarStore();
 const { query } = storeToRefs(store);
-
-useRequestSocket();
 
 const filteredList = computed(() => {
   return data.value?.filter((e) =>

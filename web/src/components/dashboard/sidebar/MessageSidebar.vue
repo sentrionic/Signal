@@ -5,10 +5,8 @@ import { onClickOutside } from '@vueuse/core';
 import { ref } from 'vue';
 import NewChatModal from '../../modals/NewChatModal.vue';
 import ChatItem from '../../items/ChatItem.vue';
-import { useMessageSocket } from '@/lib/composable/ws/useMessageSocket';
 
 const { data } = useChatsQuery();
-useMessageSocket();
 
 const showModal = ref(false);
 const wrapper = ref<HTMLDivElement>();

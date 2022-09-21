@@ -36,6 +36,7 @@ export class AppGateway implements OnGatewayInit {
   @SubscribeMessage('joinUser')
   handleUserJoin(client: Socket, room: string): void {
     client.join(room);
+    this.socketService.updateLastOnline(client);
   }
 
   @SubscribeMessage('leaveRoom')

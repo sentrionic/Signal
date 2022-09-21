@@ -1,6 +1,5 @@
 import {
   BeforeCreate,
-  BeforeUpdate,
   Collection,
   Entity,
   Index,
@@ -113,18 +112,12 @@ export class User {
     return `https://gravatar.com/avatar/${md5(email)}?d=identicon`;
   }
 
-  @BeforeUpdate()
-  // @ts-ignore
-  private updateUsername(): void {
-    this.username = this.generateUsername(this.displayName);
-  }
-
-  private generateUsername(displayName: string): string {
-    return `${displayName}#${this.getTag()}`;
+  generateUsername(displayName: string): string {
+    return `${displayName}#${this.generateTag()}`;
   }
 
   // Generates a four digit long random string tag
-  private getTag(): string {
+  private generateTag(): string {
     const characters = '0123456789';
     return [...Array(4)].map((_) => characters[~~(Math.random() * characters.length)]).join('');
   }

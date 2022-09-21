@@ -8,10 +8,13 @@ import ChatInfoHeader from '../components/dashboard/headers/ChatInfoHeader.vue';
 import { useInfoStore } from '@/stores/infoStore';
 import { storeToRefs } from 'pinia';
 import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
+import { useUserSocket } from '@/lib/composable/ws/useUserSocket';
 
 const store = useInfoStore();
 const { isVisible } = storeToRefs(store);
 const { current } = useCurrentRoute();
+
+useUserSocket();
 </script>
 
 <script lang="ts">

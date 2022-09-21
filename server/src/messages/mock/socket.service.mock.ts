@@ -2,33 +2,50 @@ import { MessageResponse } from '../dto/message.response';
 import { RequestResponse } from '../../friends/dto/request.response';
 import { UserResponse } from '../../friends/dto/user.response';
 import { ChatResponse } from '../../chats/dto/chat.response';
+import { ISocketService } from '../../socket/socket.service';
+import { Socket } from 'socket.io';
 
-export const mockSocketService = {
-  sendMessage: (_: string, __: MessageResponse) => {
+export const mockSocketService: ISocketService = {
+  addTyping(_: string, __: string): void {
     return;
   },
-  editMessage: (_: string, __: MessageResponse) => {
+  joinChat(_: Socket, __: string): Promise<void> {
+    return Promise.resolve();
+  },
+  sendRequest(_: string): void {
     return;
   },
-  deleteMessage: (_: string, __: MessageResponse) => {
+  stopTyping(_: string, __: string): void {
     return;
   },
-  addRequest: (_: string, __: RequestResponse) => {
+  updateLastOnline(_: Socket): Promise<void> {
+    return Promise.resolve();
+  },
+  sendMessage(_: string, __: MessageResponse) {
     return;
   },
-  addFriend: (_: UserResponse, __: UserResponse) => {
+  editMessage(_: string, __: MessageResponse) {
     return;
   },
-  removeFriend: (_: string, __: string) => {
+  deleteMessage(_: string, __: string) {
     return;
   },
-  addMember: (_: string, __: UserResponse) => {
+  addRequest(_: string, __: RequestResponse) {
     return;
   },
-  removeMember: (_: string, __: string) => {
+  addFriend(_: UserResponse, __: UserResponse) {
     return;
   },
-  sendChat: (_: string, __: ChatResponse) => {
+  removeFriend(_: string, __: string) {
+    return;
+  },
+  addMember(_: string, __: UserResponse) {
+    return;
+  },
+  removeMember(_: string, __: string) {
+    return;
+  },
+  sendChat(_: string, __: ChatResponse) {
     return;
   },
 };

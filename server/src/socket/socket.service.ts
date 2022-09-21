@@ -7,9 +7,27 @@ import { MessageResponse } from '../messages/dto/message.response';
 import { RequestResponse } from '../friends/dto/request.response';
 import { UserResponse } from '../friends/dto/user.response';
 import { ChatResponse } from '../chats/dto/chat.response';
+import { User } from '../users/entities/user.entity';
+
+export interface ISocketService {
+  joinChat(client: Socket, room: string): Promise<void>;
+  sendMessage(room: string, message: MessageResponse): void;
+  editMessage(room: string, message: MessageResponse): void;
+  deleteMessage(room: string, id: string): void;
+  addTyping(room: string, username: string): void;
+  stopTyping(room: string, username: string): void;
+  sendRequest(room: string): void;
+  addRequest(room: string, request: RequestResponse): void;
+  addFriend(current: UserResponse, friend: UserResponse): void;
+  removeFriend(userId: string, friendId: string): void;
+  sendChat(room: string, chat: ChatResponse): void;
+  addMember(room: string, user: UserResponse): void;
+  removeMember(room: string, userId: string): void;
+  updateLastOnline(client: Socket): Promise<void>;
+}
 
 @Injectable()
-export class SocketService {
+export class SocketService implements ISocketService {
   private socket: Server | null = null;
 
   private get server(): Server {
@@ -48,6 +66,7 @@ export class SocketService {
     }
 
     client.join(room);
+    await this.updateLastOnline(client);
   }
 
   /**
@@ -55,7 +74,7 @@ export class SocketService {
    * @param room The id of the room
    * @param message The new message
    */
-  sendMessage(room: string, message: MessageResponse) {
+  sendMessage(room: string, message: MessageResponse): void {
     this.server.to(room).emit('newMessage', message);
   }
 
@@ -64,7 +83,7 @@ export class SocketService {
    * @param room The id of the room
    * @param message The edited message
    */
-  editMessage(room: string, message: MessageResponse) {
+  editMessage(room: string, message: MessageResponse): void {
     this.server.to(room).emit('editMessage', message);
   }
 
@@ -73,7 +92,7 @@ export class SocketService {
    * @param room The id of the room
    * @param id The id of the deleted message
    */
-  deleteMessage(room: string, id: string) {
+  deleteMessage(room: string, id: string): void {
     this.server.to(room).emit('deleteMessage', id);
   }
 
@@ -82,7 +101,7 @@ export class SocketService {
    * @param room
    * @param username
    */
-  addTyping(room: string, username: string) {
+  addTyping(room: string, username: string): void {
     this.server.to(room).emit('addToTyping', username);
   }
 
@@ -91,7 +110,7 @@ export class SocketService {
    * @param room
    * @param username
    */
-  stopTyping(room: string, username: string) {
+  stopTyping(room: string, username: string): void {
     this.server.to(room).emit('removeFromTyping', username);
   }
 
@@ -99,7 +118,7 @@ export class SocketService {
    * Emits an "sendRequest" event
    * @param room
    */
-  sendRequest(room: string) {
+  sendRequest(room: string): void {
     this.server.to(room).emit('sendRequest');
   }
 
@@ -108,7 +127,7 @@ export class SocketService {
    * @param room
    * @param request
    */
-  addRequest(room: string, request: RequestResponse) {
+  addRequest(room: string, request: RequestResponse): void {
     this.sendRequest(room);
     this.server.to(room).emit('addRequest', request);
   }
@@ -118,7 +137,7 @@ export class SocketService {
    * @param current
    * @param friend
    */
-  addFriend(current: UserResponse, friend: UserResponse) {
+  addFriend(current: UserResponse, friend: UserResponse): void {
     this.server.to(friend.id).emit('addFriend', current);
     this.server.to(current.id).emit('addFriend', friend);
   }
@@ -128,7 +147,7 @@ export class SocketService {
    * @param userId
    * @param friendId
    */
-  removeFriend(userId: string, friendId: string) {
+  removeFriend(userId: string, friendId: string): void {
     this.server.to(userId).emit('removeFriend', friendId);
     this.server.to(friendId).emit('removeFriend', userId);
   }
@@ -138,7 +157,7 @@ export class SocketService {
    * @param room The id of the user that was added
    * @param chat The new chat
    */
-  sendChat(room: string, chat: ChatResponse) {
+  sendChat(room: string, chat: ChatResponse): void {
     this.server.to(room).emit('sendChat', chat);
   }
 
@@ -147,7 +166,7 @@ export class SocketService {
    * @param room The id of the room
    * @param user The new user
    */
-  addMember(room: string, user: UserResponse) {
+  addMember(room: string, user: UserResponse): void {
     this.server.to(room).emit('addMember', user);
   }
 
@@ -156,7 +175,27 @@ export class SocketService {
    * @param room The id of the room
    * @param userId The id of the user
    */
-  removeMember(room: string, userId: string) {
+  removeMember(room: string, userId: string): void {
     this.server.to(room).emit('removeMember', userId);
+  }
+
+  /**
+   * Set the user's lastOnline status
+   * @param client
+   */
+  @UseRequestContext()
+  async updateLastOnline(client: Socket): Promise<void> {
+    const id = this.getUserIdFromSession(client);
+    const user = await this.orm.em.findOne(User, { id }, { populate: ['friends'] });
+
+    if (!user) return;
+
+    user.lastOnline = new Date();
+    await this.orm.em.flush();
+
+    // Send the new date to all friends
+    for (const friend of user.friends) {
+      this.server.to(friend.id).emit('updateLastSeen', id, user.lastOnline.toISOString());
+    }
   }
 }

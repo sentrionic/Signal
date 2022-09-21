@@ -9,13 +9,10 @@ import { useFriendsQuery } from '@/lib/composable/query/useFriendsQuery';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';
 import ContactItem from '../../items/ContactItem.vue';
-import { useFriendSocket } from '@/lib/composable/ws/useFriendSocket';
 
 const { data } = useFriendsQuery();
 const store = useSidebarStore();
 const { query } = storeToRefs(store);
-
-useFriendSocket();
 
 const isAddFriendVisible = ref(false);
 const isRemoveFriendVisible = ref(false);
