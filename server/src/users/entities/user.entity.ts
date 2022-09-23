@@ -4,6 +4,7 @@ import {
   Entity,
   Index,
   ManyToMany,
+  OneToMany,
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
@@ -12,7 +13,7 @@ import { v4 } from 'uuid';
 import * as argon2 from 'argon2';
 import { Account } from '../dto/account.response';
 import { UserResponse } from '../../friends/dto/user.response';
-import { Chat } from '../../chats/entities/chat.entity';
+import { ChatMember } from '../../chats/entities/member.entity';
 
 @Entity()
 export class User {
@@ -62,8 +63,8 @@ export class User {
   @ManyToMany({ hidden: true })
   friends = new Collection<User>(this);
 
-  @ManyToMany(() => Chat, (c) => c.members, { hidden: true })
-  chats = new Collection<Chat>(this);
+  @OneToMany(() => ChatMember, (m) => m.user)
+  chats = new Collection<ChatMember>(this);
 
   constructor(email: string, displayName: string, password: string) {
     this.id = v4();

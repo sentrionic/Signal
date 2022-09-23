@@ -18,6 +18,7 @@ import { Attachment } from './entities/attachment.entity';
 import { SocketService } from '../socket/socket.service';
 import { mockConfigService } from './mock/config.service.mock';
 import { mockSocketService } from './mock/socket.service.mock';
+import { ChatMember } from '../chats/entities/member.entity';
 
 describe('MessagesService', () => {
   let service: MessagesService;
@@ -88,7 +89,7 @@ describe('MessagesService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
       const uploadSpy = jest
         .spyOn(fileService, 'uploadImage')
         .mockReturnValue(Promise.resolve('image-url.png'));
@@ -106,7 +107,7 @@ describe('MessagesService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
       const uploadSpy = jest
         .spyOn(fileService, 'uploadImage')
         .mockReturnValue(Promise.resolve('image-url.png'));
@@ -156,7 +157,7 @@ describe('MessagesService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
 
       expect(
         async () => await service.createMessage(current.id, chat.id, { text: null }),
@@ -179,7 +180,7 @@ describe('MessagesService', () => {
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
       messageRepository.find = jest.fn().mockReturnValue(messages);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
 
       const response = await service.getMessages(current.id, chat.id);
       expect(response.length).toEqual(5);

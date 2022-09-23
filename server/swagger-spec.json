@@ -1078,6 +1078,9 @@
                 "$ref": "#/components/schemas/MessageResponse"
               }
             ]
+          },
+          "hasNotification": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -1085,7 +1088,8 @@
           "type",
           "user",
           "group",
-          "lastMessage"
+          "lastMessage",
+          "hasNotification"
         ]
       },
       "ChatDto": {

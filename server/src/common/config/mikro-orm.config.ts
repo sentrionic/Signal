@@ -8,7 +8,7 @@ const config: Options = {
   clientUrl: process.env.DATABASE_URL,
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
-  debug: false,
+  debug: true,
   loadStrategy: LoadStrategy.JOINED,
   highlighter: new SqlHighlighter(),
   metadataProvider: TsMorphMetadataProvider,

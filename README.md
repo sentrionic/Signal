@@ -17,3 +17,4 @@ For more information about each component take a look at their README's.
 - Friend System [Requests & Friends]
 - CRUD Chats & Groups
 - CRU* Messages (with image upload)
+- Realtime Events for all systems

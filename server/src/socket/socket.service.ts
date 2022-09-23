@@ -8,22 +8,36 @@ import { RequestResponse } from '../friends/dto/request.response';
 import { UserResponse } from '../friends/dto/user.response';
 import { ChatResponse } from '../chats/dto/chat.response';
 import { User } from '../users/entities/user.entity';
+import { ChatMember } from '../chats/entities/member.entity';
 
 export interface ISocketService {
   joinChat(client: Socket, room: string): Promise<void>;
+
   sendMessage(room: string, message: MessageResponse): void;
+
   editMessage(room: string, message: MessageResponse): void;
+
   deleteMessage(room: string, id: string): void;
+
   addTyping(room: string, username: string): void;
+
   stopTyping(room: string, username: string): void;
-  sendRequest(room: string): void;
+
   addRequest(room: string, request: RequestResponse): void;
+
   addFriend(current: UserResponse, friend: UserResponse): void;
+
   removeFriend(userId: string, friendId: string): void;
+
   sendChat(room: string, chat: ChatResponse): void;
+
   addMember(room: string, user: UserResponse): void;
+
   removeMember(room: string, userId: string): void;
+
   updateLastOnline(client: Socket): Promise<void>;
+
+  updateLastSeen(client: Socket, room: string): Promise<void>;
 }
 
 @Injectable()
@@ -55,13 +69,13 @@ export class SocketService implements ISocketService {
   async joinChat(client: Socket, room: string): Promise<void> {
     const id = this.getUserIdFromSession(client);
 
-    const chat = await this.orm.em.findOne(Chat, { id: room }, { populate: ['members'] });
+    const chat = await this.orm.em.findOne(Chat, { id: room }, { populate: ['members.user'] });
 
     if (!chat) {
       throw new WsException('Not Found');
     }
 
-    if (!chat.members.getItems().find((m) => m.id === id)) {
+    if (!chat.members.getItems().find((m) => m.user.id === id)) {
       throw new WsException('Not Authorized');
     }
 
@@ -76,6 +90,7 @@ export class SocketService implements ISocketService {
    */
   sendMessage(room: string, message: MessageResponse): void {
     this.server.to(room).emit('newMessage', message);
+    this.sendNotification(room, message);
   }
 
   /**
@@ -115,20 +130,11 @@ export class SocketService implements ISocketService {
   }
 
   /**
-   * Emits an "sendRequest" event
-   * @param room
-   */
-  sendRequest(room: string): void {
-    this.server.to(room).emit('sendRequest');
-  }
-
-  /**
    * Emits an "addRequest" event
    * @param room
    * @param request
    */
   addRequest(room: string, request: RequestResponse): void {
-    this.sendRequest(room);
     this.server.to(room).emit('addRequest', request);
   }
 
@@ -179,6 +185,18 @@ export class SocketService implements ISocketService {
     this.server.to(room).emit('removeMember', userId);
   }
 
+  @UseRequestContext()
+  async sendNotification(chatId: string, message: MessageResponse): Promise<void> {
+    const members = await this.orm.em.find(
+      ChatMember,
+      { chat: { id: chatId } },
+      { populate: ['user.id'] },
+    );
+    for (const member of members) {
+      this.server.to(member.user.id).emit('newNotification', chatId, message);
+    }
+  }
+
   /**
    * Set the user's lastOnline status
    * @param client
@@ -197,5 +215,15 @@ export class SocketService implements ISocketService {
     for (const friend of user.friends) {
       this.server.to(friend.id).emit('updateLastSeen', id, user.lastOnline.toISOString());
     }
+  }
+
+  @UseRequestContext()
+  async updateLastSeen(client: Socket, room: string): Promise<void> {
+    const id = this.getUserIdFromSession(client);
+    const member = await this.orm.em.findOne(ChatMember, { user: { id }, chat: { id: room } });
+
+    if (!member) return;
+    member.lastSeen = new Date();
+    await this.orm.em.flush();
   }
 }

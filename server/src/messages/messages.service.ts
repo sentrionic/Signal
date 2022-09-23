@@ -37,7 +37,7 @@ export class MessagesService {
     input: CreateMessageDto,
     file?: BufferFile,
   ): Promise<boolean> {
-    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members.user'] });
 
     if (!chat) {
       throw new NotFoundException();
@@ -49,7 +49,7 @@ export class MessagesService {
       throw new NotFoundException();
     }
 
-    if (!chat.members.contains(user)) {
+    if (!this.isChatMember(chat, user.id)) {
       throw new UnauthorizedException();
     }
 
@@ -90,13 +90,13 @@ export class MessagesService {
       throw new NotFoundException();
     }
 
-    const chat = await this.chatRepository.findOne({ id }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id }, { populate: ['members.user'] });
 
     if (!chat) {
       throw new NotFoundException();
     }
 
-    if (!chat.members.contains(user)) {
+    if (!this.isChatMember(chat, user.id)) {
       throw new UnauthorizedException();
     }
 
@@ -164,5 +164,9 @@ export class MessagesService {
     this.socketService.deleteMessage(message.chat.id, id);
 
     return true;
+  }
+
+  private isChatMember(chat: Chat, id: string): boolean {
+    return chat.members.getItems().some((m) => m.user.id === id);
   }
 }

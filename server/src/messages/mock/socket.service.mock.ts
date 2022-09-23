@@ -12,9 +12,6 @@ export const mockSocketService: ISocketService = {
   joinChat(_: Socket, __: string): Promise<void> {
     return Promise.resolve();
   },
-  sendRequest(_: string): void {
-    return;
-  },
   stopTyping(_: string, __: string): void {
     return;
   },
@@ -47,5 +44,8 @@ export const mockSocketService: ISocketService = {
   },
   sendChat(_: string, __: ChatResponse) {
     return;
+  },
+  updateLastSeen(_: Socket, __: string): Promise<void> {
+    return Promise.resolve(undefined);
   },
 };

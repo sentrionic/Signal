@@ -19,4 +19,7 @@ export class ChatResponse {
 
   @ApiProperty({ type: MessageResponse, nullable: true })
   lastMessage?: MessageResponse | null;
+
+  @ApiProperty({ type: Boolean })
+  hasNotification!: boolean;
 }

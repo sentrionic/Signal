@@ -10,6 +10,9 @@ import { getMockChat, getMockGroupChat } from './mocks/chat.mock';
 import { NotFoundException } from '@nestjs/common';
 import { validate } from 'uuid';
 import { Collection } from '@mikro-orm/core';
+import { ChatMember } from './entities/member.entity';
+import { Message } from '../messages/entities/message.entity';
+import { getMockMessage } from '../messages/mock/message.mock';
 
 describe('ChatsService', () => {
   let service: ChatsService;
@@ -26,6 +29,10 @@ describe('ChatsService', () => {
     populate: jest.fn(),
   };
 
+  const messageRepository = {
+    find: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -38,6 +45,10 @@ describe('ChatsService', () => {
           provide: getRepositoryToken(Chat),
           useValue: chatRepository,
         },
+        {
+          provide: getRepositoryToken(Message),
+          useValue: messageRepository,
+        },
       ],
     }).compile();
 
@@ -47,12 +58,17 @@ describe('ChatsService', () => {
 
   describe('GetUserChats', () => {
     it('should successfully return all the chats for the current user', async () => {
+      messageRepository.find = jest.fn().mockReturnValue([getMockMessage(), getMockMessage()]);
+
       const chats: Chat[] = [];
       for (let i = 0; i < 3; i++) {
         const chat = i % 2 == 0 ? getMockChat() : getMockGroupChat();
         const mockContact = getMockUser();
         jest.spyOn(chat.members, 'add').mockReturnValue();
-        jest.spyOn(chat.members, 'getItems').mockReturnValue([current, mockContact]);
+        jest.spyOn(chat.messages, 'hydrate').mockReturnValue();
+        jest
+          .spyOn(chat.members, 'getItems')
+          .mockReturnValue([new ChatMember(userMock, chat), new ChatMember(mockContact, chat)]);
         chats.push(chat);
       }
 
@@ -75,7 +91,10 @@ describe('ChatsService', () => {
       const contact = getMockUser();
 
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
-      jest.spyOn(chat.members, 'getItems').mockReturnValue([current, contact]);
+      jest.spyOn(chat.messages, 'hydrate').mockReturnValue();
+      jest
+        .spyOn(chat.members, 'getItems')
+        .mockReturnValue([new ChatMember(userMock, chat), new ChatMember(contact, chat)]);
 
       const response = await service.getOrCreateChat(current.id, contact.id);
       expect(response.id).toBeDefined();

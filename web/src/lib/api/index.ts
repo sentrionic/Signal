@@ -90,6 +90,7 @@ export interface ChatResponse {
   user: UserResponse | null;
   group: GroupResponse | null;
   lastMessage: MessageResponse | null;
+  hasNotification: boolean;
 }
 
 export interface ChatDto {

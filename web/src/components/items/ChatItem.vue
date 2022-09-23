@@ -2,6 +2,7 @@
 import type { ChatResponse } from '@/lib/api';
 import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 import { computed } from 'vue';
+import { BellIcon } from '@heroicons/vue/24/outline';
 
 const { id } = useCurrentRoute();
 const props = defineProps<{ chat: ChatResponse }>();
@@ -52,6 +53,9 @@ const formatLastMessage = computed(() => {
             {{ formatLastMessage }}
           </p>
         </div>
+      </div>
+      <div v-if="chat.hasNotification" class="bg-gray-300 rounded-full p-1">
+        <BellIcon class="w-5 h-5" />
       </div>
     </div>
   </router-link>

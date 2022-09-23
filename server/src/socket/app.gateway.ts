@@ -54,6 +54,7 @@ export class AppGateway implements OnGatewayInit {
   @UseGuards(WsAuthGuard)
   handleChatLeave(client: Socket, room: string): void {
     client.leave(room);
+    this.socketService.updateLastSeen(client, room);
   }
 
   @SubscribeMessage('startTyping')

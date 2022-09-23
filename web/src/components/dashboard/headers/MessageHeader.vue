@@ -2,11 +2,13 @@
 import { ref } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { Bars3Icon } from '@heroicons/vue/24/outline';
+import { BellIcon } from '@heroicons/vue/24/solid';
 import SearchInput from './components/SearchInput.vue';
 import DropdownMenu from './components/DropdownMenu.vue';
 import { storeToRefs } from 'pinia';
 import IconButton from '../../common/IconButton.vue';
 import { useSidebarStore } from '../../../stores/sidebarStore';
+import { useRequestsQuery } from '@/lib/composable/query/useRequestsQuery';
 
 const store = useSidebarStore();
 const { query } = storeToRefs(store);
@@ -23,12 +25,18 @@ onClickOutside(dropDownWrapper, () => {
   if (!visible.value) return;
   visible.value = false;
 });
+
+const { data } = useRequestsQuery();
 </script>
 
 <template>
   <div class="flex items-center justify-between h-full mx-4" ref="dropDownWrapper">
-    <IconButton description="Open Menu" :handleClick="onToggle">
+    <IconButton description="Open Menu" :handleClick="onToggle" class="relative">
       <Bars3Icon class="w-6 h-6 dark:text-iconsDark" />
+      <BellIcon
+        v-if="data?.length"
+        class="absolute top-1 right-1 h-4 w-4 text-red-600 dark:text-red-700"
+      ></BellIcon>
     </IconButton>
     <SearchInput :text="query" @onChanged="updateQuery" />
   </div>

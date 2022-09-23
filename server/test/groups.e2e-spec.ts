@@ -17,6 +17,7 @@ import { setupApp } from '../src/app';
 import { getRandomString } from '../src/common/utils/faker';
 import { Chat } from '../src/chats/entities/chat.entity';
 import { ChatType } from '../src/chats/entities/chat-type.enum';
+import { ChatMember } from '../src/chats/entities/member.entity';
 
 describe('GroupsController (e2e)', () => {
   let app: NestExpressApplication;
@@ -52,8 +53,8 @@ describe('GroupsController (e2e)', () => {
     chat = new Chat(ChatType.GROUP_CHAT);
     group = new Group('Group');
     chat.group = group;
-    chat.members.add(current);
-    await em.persistAndFlush([current, group]);
+    chat.members.add(new ChatMember(current, chat));
+    await em.persistAndFlush([current, chat, group]);
 
     await app.init();
     server = app.getHttpServer();

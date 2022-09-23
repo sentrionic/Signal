@@ -16,6 +16,7 @@ import { SocketService } from '../socket/socket.service';
 import { ConfigService } from '@nestjs/config';
 import { mockConfigService } from '../messages/mock/config.service.mock';
 import { mockSocketService } from '../messages/mock/socket.service.mock';
+import { ChatMember } from '../chats/entities/member.entity';
 
 describe('GroupsService', () => {
   let service: GroupsService;
@@ -42,6 +43,11 @@ describe('GroupsService', () => {
     populate: jest.fn(),
   };
 
+  const memberRepository = {
+    persistAndFlush: jest.fn(),
+    nativeDelete: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -66,6 +72,10 @@ describe('GroupsService', () => {
           provide: getRepositoryToken(Chat),
           useValue: chatRepository,
         },
+        {
+          provide: getRepositoryToken(ChatMember),
+          useValue: memberRepository,
+        },
       ],
     }).compile();
 
@@ -83,7 +93,7 @@ describe('GroupsService', () => {
 
   describe('CreateGroupChat', () => {
     it('should successfully create and return the group', async () => {
-      const users: User[] = [];
+      const users: User[] = [current];
       for (let i = 0; i < 3; i++) {
         const user = getMockUser();
         users.push(user);
@@ -107,7 +117,7 @@ describe('GroupsService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(member);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true).mockReturnValueOnce(false);
+      jest.spyOn(chat.members, 'getItems').mockReturnValue([new ChatMember(current, chat)]);
       jest.spyOn(chat.members, 'add').mockReturnValue();
       const socketSpy = jest.spyOn(socketService, 'addMember').mockReturnValue();
       const socketSpySend = jest.spyOn(socketService, 'sendChat').mockReturnValue();
@@ -135,7 +145,7 @@ describe('GroupsService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(null);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValue([new ChatMember(current, chat)]);
 
       expect(async () => await service.addUserToGroup(current.id, '', chat.id)).rejects.toThrow(
         new NotFoundException(),
@@ -160,7 +170,9 @@ describe('GroupsService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(member);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true).mockReturnValueOnce(true);
+      jest
+        .spyOn(chat.members, 'getItems')
+        .mockReturnValue([new ChatMember(current, chat), new ChatMember(member, chat)]);
 
       expect(
         async () => await service.addUserToGroup(current.id, member.username, chat.id),
