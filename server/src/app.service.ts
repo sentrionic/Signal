@@ -4,6 +4,7 @@ import { User } from './users/entities/user.entity';
 import { Group } from './groups/entities/group.entity';
 import { Chat } from './chats/entities/chat.entity';
 import { ChatType } from './chats/entities/chat-type.enum';
+import { ChatMember } from './chats/entities/member.entity';
 
 @Injectable()
 export class AppService implements OnModuleInit {
@@ -32,11 +33,13 @@ export class AppService implements OnModuleInit {
     const chat = new Chat(ChatType.GROUP_CHAT);
     const group = new Group('Group #1');
     chat.group = group;
-    chat.members.add(user1, user2);
+    chat.members.add(new ChatMember(user1, chat));
+    chat.members.add(new ChatMember(user2, chat));
 
     // Create direct chat
     const directChat = new Chat(ChatType.DIRECT_CHAT);
-    directChat.members.add(user1, user3);
+    directChat.members.add(new ChatMember(user1, directChat));
+    directChat.members.add(new ChatMember(user3, directChat));
 
     await em.persistAndFlush([user1, user2, user3, group, chat, directChat]);
   }

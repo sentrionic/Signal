@@ -4,7 +4,7 @@ import { onClickOutside } from '@vueuse/core';
 import { useInfoStore } from '@/stores/infoStore';
 import ChatUserHeader from '../chat/ChatUserHeader.vue';
 import ChatGroupHeader from '../chat/ChatGroupHeader.vue';
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 
 const { current } = useCurrentRoute();
 

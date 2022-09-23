@@ -10,6 +10,8 @@ declare global {
       AWS_SECRET_ACCESS_KEY: string;
       AWS_STORAGE_BUCKET_NAME: string;
       AWS_S3_REGION: string;
+      COOKIE_NAME: string;
+      NODE_ENV: string;
     }
   }
 }

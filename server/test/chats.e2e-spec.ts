@@ -17,6 +17,8 @@ import { ChatResponse } from '../src/chats/dto/chat.response';
 import { UsersModule } from '../src/users/users.module';
 import { ChatType } from '../src/chats/entities/chat-type.enum';
 import { Group } from '../src/groups/entities/group.entity';
+import { ChatMember } from '../src/chats/entities/member.entity';
+import { Message } from '../src/messages/entities/message.entity';
 
 describe('ChatsController (e2e)', () => {
   let app: NestExpressApplication;
@@ -63,9 +65,15 @@ describe('ChatsController (e2e)', () => {
         const u = new User(`user-${i}@example.com`, `User #${i}`, 'password');
         const c = i % 3 === 0 ? new Chat(ChatType.GROUP_CHAT) : new Chat(ChatType.DIRECT_CHAT);
         if (i % 2 === 0) {
-          c.members.add(current);
-          c.members.add(u);
+          c.members.add(new ChatMember(current, c));
         }
+        c.members.add(new ChatMember(u, c));
+
+        const message = new Message(u, c);
+        message.text = `Text Message #${i}`;
+        // Add some difference for cursor
+        message.sentAt.setMinutes(message.sentAt.getMinutes() + i);
+        c.messages.add(message);
 
         if (c.type === ChatType.GROUP_CHAT) {
           c.group = new Group(`Group #${i}`);
@@ -87,7 +95,7 @@ describe('ChatsController (e2e)', () => {
 
       const result = body as ChatResponse[];
 
-      const directChat = result[1];
+      const directChat = result[0];
       expect(directChat.id).toBeDefined();
       expect(directChat.type).toEqual(ChatType.DIRECT_CHAT);
       const user = directChat?.user;
@@ -99,7 +107,7 @@ describe('ChatsController (e2e)', () => {
       expect(user?.bio).toBeDefined();
       expect(user?.lastOnline).toBeDefined();
 
-      const groupChat = result[3];
+      const groupChat = result[1];
       expect(groupChat.id).toBeDefined();
       expect(groupChat.type).toEqual(ChatType.GROUP_CHAT);
       const group = groupChat?.group;
@@ -120,8 +128,8 @@ describe('ChatsController (e2e)', () => {
     it('should successfully return the chat between the two users if it already exists', async () => {
       const contact = new User('contact@example.com', 'Contact', 'password');
       const chat = new Chat(ChatType.DIRECT_CHAT);
-      chat.members.add(contact);
-      chat.members.add(current);
+      chat.members.add(new ChatMember(contact, chat));
+      chat.members.add(new ChatMember(current, chat));
       await em.persistAndFlush([chat, contact]);
 
       const session = await login(server, current);

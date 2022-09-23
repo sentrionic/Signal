@@ -102,7 +102,6 @@ defineExpose({
 
 <style lang="css">
 .vue-simple-context-menu {
-  background-color: #ecf0f1;
   border-bottom-width: 0px;
   border-radius: 4px;
   box-shadow: 0 3px 6px 0 rgba(#333, 0.2);
@@ -114,6 +113,7 @@ defineExpose({
   position: absolute;
   top: 0;
   z-index: 1000000;
+  @apply bg-contextLight dark:bg-menuDark;
 }
 
 .vue-simple-context-menu--active {
@@ -122,10 +122,10 @@ defineExpose({
 
 .vue-simple-context-menu__item {
   align-items: center;
-  color: #333;
   cursor: pointer;
   display: flex;
   padding: 5px 15px;
+  @apply text-contextItem dark:text-white;
 }
 
 .vue-simple-context-menu__item:hover {

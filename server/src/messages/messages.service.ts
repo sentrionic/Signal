@@ -16,6 +16,7 @@ import { BufferFile } from '../common/types/buffer.file';
 import { FilesService } from '../files/file.service';
 import { MessageResponse } from './dto/message.response';
 import { MessageType } from './entities/message-type.enum';
+import { SocketService } from '../socket/socket.service';
 
 @Injectable()
 export class MessagesService {
@@ -27,6 +28,7 @@ export class MessagesService {
     @InjectRepository(Chat)
     private chatRepository: EntityRepository<Chat>,
     private filesService: FilesService,
+    private readonly socketService: SocketService,
   ) {}
 
   async createMessage(
@@ -35,7 +37,7 @@ export class MessagesService {
     input: CreateMessageDto,
     file?: BufferFile,
   ): Promise<boolean> {
-    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id: chatId }, { populate: ['members.user'] });
 
     if (!chat) {
       throw new NotFoundException();
@@ -47,7 +49,7 @@ export class MessagesService {
       throw new NotFoundException();
     }
 
-    if (!chat.members.contains(user)) {
+    if (!this.isChatMember(chat, user.id)) {
       throw new UnauthorizedException();
     }
 
@@ -57,8 +59,7 @@ export class MessagesService {
       throw new BadRequestException({ message: 'Either a message or a file is required' });
     }
 
-    const message = new Message(user);
-    message.chat = chat;
+    const message = new Message(user, chat);
 
     if (file) {
       const { originalname, mimetype } = await file;
@@ -72,6 +73,8 @@ export class MessagesService {
     }
 
     await this.messageRepository.persistAndFlush(message);
+
+    this.socketService.sendMessage(chatId, message.toResponse());
 
     return true;
   }
@@ -87,13 +90,13 @@ export class MessagesService {
       throw new NotFoundException();
     }
 
-    const chat = await this.chatRepository.findOne({ id }, { populate: ['members'] });
+    const chat = await this.chatRepository.findOne({ id }, { populate: ['members.user'] });
 
     if (!chat) {
       throw new NotFoundException();
     }
 
-    if (!chat.members.contains(user)) {
+    if (!this.isChatMember(chat, user.id)) {
       throw new UnauthorizedException();
     }
 
@@ -129,8 +132,11 @@ export class MessagesService {
     }
 
     message.text = input.text;
+    message.updatedAt = new Date();
 
     await this.messageRepository.flush();
+
+    this.socketService.editMessage(message.chat.id, message.toResponse());
 
     return true;
   }
@@ -155,6 +161,12 @@ export class MessagesService {
 
     await this.messageRepository.nativeDelete({ id });
 
+    this.socketService.deleteMessage(message.chat.id, id);
+
     return true;
+  }
+
+  private isChatMember(chat: Chat, id: string): boolean {
+    return chat.members.getItems().some((m) => m.user.id === id);
   }
 }

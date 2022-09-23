@@ -15,10 +15,15 @@ import { fileMock } from '../users/mocks/file.mock';
 import { BadRequestException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { getMockMessage } from './mock/message.mock';
 import { Attachment } from './entities/attachment.entity';
+import { SocketService } from '../socket/socket.service';
+import { mockConfigService } from './mock/config.service.mock';
+import { mockSocketService } from './mock/socket.service.mock';
+import { ChatMember } from '../chats/entities/member.entity';
 
 describe('MessagesService', () => {
   let service: MessagesService;
   let fileService: FilesService;
+  let socketService: SocketService;
   let current: User;
   let message: Message;
   let chat: Chat;
@@ -42,9 +47,16 @@ describe('MessagesService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ConfigService,
         MessagesService,
         FilesService,
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
+        {
+          provide: SocketService,
+          useValue: mockSocketService,
+        },
         {
           provide: getRepositoryToken(User),
           useValue: userRepository,
@@ -62,9 +74,14 @@ describe('MessagesService', () => {
 
     service = module.get<MessagesService>(MessagesService);
     fileService = module.get<FilesService>(FilesService);
+    socketService = module.get<SocketService>(SocketService);
     current = getMockUser();
     chat = getMockChat();
     message = getMockMessage();
+  });
+
+  it('should confirm the test setup works', () => {
+    expect(service).toBeDefined();
   });
 
   describe('CreateMessage', () => {
@@ -72,25 +89,29 @@ describe('MessagesService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
       const uploadSpy = jest
         .spyOn(fileService, 'uploadImage')
         .mockReturnValue(Promise.resolve('image-url.png'));
+
+      const socketSpy = jest.spyOn(socketService, 'sendMessage').mockReturnValue();
 
       const text = getRandomString();
       const response = await service.createMessage(current.id, chat.id, { text });
       expect(response).toBeTruthy();
       expect(uploadSpy).not.toHaveBeenCalled();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should successfully create the image message and return true', async () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
       const uploadSpy = jest
         .spyOn(fileService, 'uploadImage')
         .mockReturnValue(Promise.resolve('image-url.png'));
+      const socketSpy = jest.spyOn(socketService, 'sendMessage').mockReturnValue();
 
       jest.spyOn(fileService, 'formatName').mockReturnValue('image');
 
@@ -98,6 +119,7 @@ describe('MessagesService', () => {
       const response = await service.createMessage(current.id, chat.id, { text: null }, file);
       expect(response).toBeTruthy();
       expect(uploadSpy).toHaveBeenCalled();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the chat cannot be found', async () => {
@@ -135,7 +157,7 @@ describe('MessagesService', () => {
       userRepository.findOne = jest.fn().mockReturnValue(current);
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
 
       expect(
         async () => await service.createMessage(current.id, chat.id, { text: null }),
@@ -149,7 +171,7 @@ describe('MessagesService', () => {
     it('should successfully return a list of messages for the given chat', async () => {
       const messages: Message[] = [];
       for (let i = 0; i < 5; i++) {
-        const message = new Message(current);
+        const message = new Message(current, chat);
         message.text = 'Hello World';
         messages.push(message);
       }
@@ -158,7 +180,7 @@ describe('MessagesService', () => {
       chatRepository.findOne = jest.fn().mockReturnValue(chat);
       messageRepository.find = jest.fn().mockReturnValue(messages);
 
-      jest.spyOn(chat.members, 'contains').mockReturnValueOnce(true);
+      jest.spyOn(chat.members, 'getItems').mockReturnValueOnce([new ChatMember(current, chat)]);
 
       const response = await service.getMessages(current.id, chat.id);
       expect(response.length).toEqual(5);
@@ -202,9 +224,11 @@ describe('MessagesService', () => {
     it('should successfully update the message and return true', async () => {
       message.user = current;
       messageRepository.findOne = jest.fn().mockReturnValue(message);
+      const socketSpy = jest.spyOn(socketService, 'editMessage').mockReturnValue();
 
       const response = await service.updateMessage(current.id, message.id, { text: 'New Text' });
       expect(response).toBeTruthy();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the message cannot be found', () => {
@@ -238,15 +262,18 @@ describe('MessagesService', () => {
       message.attachment = new Attachment('', '', '', message);
       messageRepository.findOne = jest.fn().mockReturnValue(message);
 
+      const socketSpy = jest.spyOn(socketService, 'deleteMessage').mockReturnValue();
       const deleteSpy = jest.spyOn(fileService, 'deleteFile').mockReturnValue(Promise.resolve());
 
       const response = await service.deleteMessage(current.id, message.id);
       expect(response).toBeTruthy();
       expect(deleteSpy).toHaveBeenCalled();
+      expect(socketSpy).toHaveBeenCalled();
     });
 
     it('should throw a NotFoundException if the message cannot be found', () => {
       messageRepository.findOne = jest.fn().mockReturnValue(null);
+
       expect(async () => await service.deleteMessage(current.id, message.id)).rejects.toThrow(
         new NotFoundException(),
       );
@@ -254,6 +281,7 @@ describe('MessagesService', () => {
 
     it('should throw an UnauthorizedException if the user is not a message author', () => {
       messageRepository.findOne = jest.fn().mockReturnValue(message);
+
       expect(async () => await service.deleteMessage(current.id, message.id)).rejects.toThrow(
         new UnauthorizedException(),
       );

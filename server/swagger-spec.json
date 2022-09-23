@@ -966,88 +966,6 @@
           "memberCount"
         ]
       },
-      "ChatResponse": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "GROUP CHAT",
-              "DIRECT CHAT"
-            ]
-          },
-          "user": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UserResponse"
-              }
-            ]
-          },
-          "group": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/GroupResponse"
-              }
-            ]
-          },
-          "lastMessage": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "id",
-          "type",
-          "user",
-          "group",
-          "lastMessage"
-        ]
-      },
-      "ChatDto": {
-        "type": "object",
-        "properties": {
-          "contactID": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "contactID"
-        ]
-      },
-      "CreateGroupDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "ids": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        },
-        "required": [
-          "name",
-          "ids"
-        ]
-      },
-      "AddUserDto": {
-        "type": "object",
-        "properties": {
-          "username": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "username"
-        ]
-      },
       "AttachmentResponse": {
         "type": "object",
         "properties": {
@@ -1100,6 +1018,9 @@
           "sentAt": {
             "type": "string"
           },
+          "updatedAt": {
+            "type": "string"
+          },
           "deliveredAt": {
             "type": "string",
             "nullable": true
@@ -1116,8 +1037,99 @@
           "user",
           "attachment",
           "sentAt",
+          "updatedAt",
           "deliveredAt",
           "seenAt"
+        ]
+      },
+      "ChatResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "GROUP CHAT",
+              "DIRECT CHAT"
+            ]
+          },
+          "user": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserResponse"
+              }
+            ]
+          },
+          "group": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/GroupResponse"
+              }
+            ]
+          },
+          "lastMessage": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MessageResponse"
+              }
+            ]
+          },
+          "hasNotification": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "user",
+          "group",
+          "lastMessage",
+          "hasNotification"
+        ]
+      },
+      "ChatDto": {
+        "type": "object",
+        "properties": {
+          "contactID": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contactID"
+        ]
+      },
+      "CreateGroupDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "ids"
+        ]
+      },
+      "AddUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
         ]
       },
       "CreateMessageDto": {

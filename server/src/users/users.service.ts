@@ -93,8 +93,12 @@ export class UsersService {
     const { email, displayName, bio } = input;
 
     user.email = email;
-    user.displayName = displayName;
     user.bio = bio;
+
+    if (user.displayName !== displayName) {
+      user.displayName = displayName;
+      user.username = user.generateUsername(displayName);
+    }
 
     if (image) {
       const directory = `signal/users/${id}`;

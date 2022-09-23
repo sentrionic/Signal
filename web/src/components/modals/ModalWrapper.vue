@@ -18,6 +18,6 @@
 
 .wrapper {
   @apply sm:my-8 sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl sm:w-full;
-  @apply relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all;
+  @apply relative bg-white dark:bg-menuDark rounded-lg text-left overflow-hidden shadow-xl transform transition-all;
 }
 </style>

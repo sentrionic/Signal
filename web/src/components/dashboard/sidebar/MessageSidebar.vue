@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useChatsQuery } from '@/lib/composable/useChatsQuery';
+import { useChatsQuery } from '@/lib/composable/query/useChatsQuery';
 import { PencilIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import { onClickOutside } from '@vueuse/core';
 import { ref } from 'vue';

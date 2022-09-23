@@ -1,28 +1,19 @@
-import {
-  Collection,
-  Entity,
-  ManyToMany,
-  OneToMany,
-  OneToOne,
-  PrimaryKey,
-  Property,
-} from '@mikro-orm/core';
+import { Collection, Entity, OneToMany, OneToOne, PrimaryKey, Property } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { ChatResponse } from '../dto/chat.response';
-import { User } from '../../users/entities/user.entity';
 import { UserResponse } from '../../friends/dto/user.response';
 import { ChatType } from './chat-type.enum';
 import { Group } from '../../groups/entities/group.entity';
 import { Message } from '../../messages/entities/message.entity';
-import { MessageType } from '../../messages/entities/message-type.enum';
+import { ChatMember } from './member.entity';
 
 @Entity()
 export class Chat {
   @PrimaryKey()
   id: string;
 
-  @ManyToMany(() => User)
-  members: Collection<User> = new Collection<User>(this);
+  @OneToMany(() => ChatMember, (m) => m.chat)
+  members = new Collection<ChatMember>(this);
 
   @Property()
   type: ChatType;
@@ -43,17 +34,14 @@ export class Chat {
     this.type = type;
   }
 
-  toChatResponse(user?: UserResponse | null): ChatResponse {
-    const message = this.messages.getItems().at(-1);
+  toChatResponse(current: ChatMember, user?: UserResponse | null): ChatResponse {
     return {
       id: this.id,
       type: this.type,
       user,
       group: this.group?.toGroupResponse(this.members.count()) || null,
-      lastMessage:
-        (message?.type === MessageType.TEXT
-          ? message.text
-          : message?.attachment?.url ?? 'Sent a file') || null,
+      lastMessage: this.messages.getItems().at(-1)?.toResponse() || null,
+      hasNotification: this.messages.getItems().some((m) => m.sentAt > current.lastSeen),
     };
   }
 }

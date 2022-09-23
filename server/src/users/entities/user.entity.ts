@@ -1,10 +1,10 @@
 import {
   BeforeCreate,
-  BeforeUpdate,
   Collection,
   Entity,
   Index,
   ManyToMany,
+  OneToMany,
   PrimaryKey,
   Property,
 } from '@mikro-orm/core';
@@ -13,7 +13,7 @@ import { v4 } from 'uuid';
 import * as argon2 from 'argon2';
 import { Account } from '../dto/account.response';
 import { UserResponse } from '../../friends/dto/user.response';
-import { Chat } from '../../chats/entities/chat.entity';
+import { ChatMember } from '../../chats/entities/member.entity';
 
 @Entity()
 export class User {
@@ -63,8 +63,8 @@ export class User {
   @ManyToMany({ hidden: true })
   friends = new Collection<User>(this);
 
-  @ManyToMany(() => Chat, (c) => c.members, { hidden: true })
-  chats = new Collection<Chat>(this);
+  @OneToMany(() => ChatMember, (m) => m.user)
+  chats = new Collection<ChatMember>(this);
 
   constructor(email: string, displayName: string, password: string) {
     this.id = v4();
@@ -113,18 +113,12 @@ export class User {
     return `https://gravatar.com/avatar/${md5(email)}?d=identicon`;
   }
 
-  @BeforeUpdate()
-  // @ts-ignore
-  private updateUsername(): void {
-    this.username = this.generateUsername(this.displayName);
-  }
-
-  private generateUsername(displayName: string): string {
-    return `${displayName}#${this.getTag()}`;
+  generateUsername(displayName: string): string {
+    return `${displayName}#${this.generateTag()}`;
   }
 
   // Generates a four digit long random string tag
-  private getTag(): string {
+  private generateTag(): string {
     const characters = '0123456789';
     return [...Array(4)].map((_) => characters[~~(Math.random() * characters.length)]).join('');
   }

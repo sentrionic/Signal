@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { RequestType, type RequestResponse } from '@/lib/api';
 import { acceptRequest, removeRequest } from '@/lib/api/handler/requests';
-import { rKey } from '@/lib/composable/useRequestsQuery';
+import { rKey } from '@/lib/composable/query/useRequestsQuery';
 import { useQueryClient } from 'vue-query';
+import IconButton from '../common/IconButton.vue';
+import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/solid';
+
 defineProps<{ request: RequestResponse }>();
 
 const cache = useQueryClient();
@@ -35,7 +38,9 @@ const handleRemove = async (id: string) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between hover:bg-zinc-100 rounded-md p-2.5">
+  <div
+    class="flex items-center justify-between hover:bg-zinc-100 dark:hover:bg-hoverDark rounded-md p-2.5"
+  >
     <div class="flex items-center space-x-4">
       <div class="flex-shrink-0">
         <img
@@ -57,10 +62,10 @@ const handleRemove = async (id: string) => {
         description="Accept"
         :handleClick="() => handleAccept(request.user.id)"
       >
-        <CheckIcon class="text-green-800 w-6 h-6" />
+        <CheckIcon class="text-green-800 dark:text-green-500 w-6 h-6" />
       </IconButton>
       <IconButton description="Decline" :handleClick="() => handleRemove(request.user.id)">
-        <XMarkIcon class="text-red-800 w-6 h-6" />
+        <XMarkIcon class="text-red-800 dark:text-red-600 w-6 h-6" />
       </IconButton>
     </div>
   </div>

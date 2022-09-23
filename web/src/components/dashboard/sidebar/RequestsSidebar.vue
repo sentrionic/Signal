@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useRequestsQuery } from '@/lib/composable/useRequestsQuery';
+import { useRequestsQuery } from '@/lib/composable/query/useRequestsQuery';
 import { computed } from 'vue';
 import { useSidebarStore } from '@/stores/sidebarStore';
 import { storeToRefs } from 'pinia';

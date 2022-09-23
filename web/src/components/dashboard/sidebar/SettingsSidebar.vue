@@ -5,7 +5,7 @@ import { useForm } from 'vee-validate';
 import { UpdateSchema } from '@/lib/validation/user.schema';
 import { toErrorMap } from '@/lib/utils/toErrorMap';
 import { ref } from 'vue';
-import { useToast } from '@/lib/composable/useToast';
+import { useToast } from '@/lib/composable/common/useToast';
 import FormField from '@/components/form/FormField.vue';
 import FormButton from '@/components/form/FormButton.vue';
 import SuccessErrorToast from '@/components/common/SuccessErrorToast.vue';

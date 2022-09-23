@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCurrentRoute } from '@/lib/composable/useCurrentRoute';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
 import ChatWindow from '../chat/ChatWindow.vue';
 
 const { current } = useCurrentRoute();

@@ -2,6 +2,7 @@ import { UserResponse } from '../../friends/dto/user.response';
 import { ApiProperty } from '@nestjs/swagger';
 import { ChatType } from '../entities/chat-type.enum';
 import { GroupResponse } from '../../groups/dto/group.response';
+import { MessageResponse } from '../../messages/dto/message.response';
 
 export class ChatResponse {
   @ApiProperty({ type: String })
@@ -16,6 +17,9 @@ export class ChatResponse {
   @ApiProperty({ type: GroupResponse, nullable: true })
   group?: GroupResponse | null;
 
-  @ApiProperty({ type: String, nullable: true })
-  lastMessage?: string | null;
+  @ApiProperty({ type: MessageResponse, nullable: true })
+  lastMessage?: MessageResponse | null;
+
+  @ApiProperty({ type: Boolean })
+  hasNotification!: boolean;
 }

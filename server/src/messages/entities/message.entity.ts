@@ -18,7 +18,7 @@ export class Message {
   text?: string;
 
   @ManyToOne({ nullable: true })
-  chat?: Chat;
+  chat: Chat;
 
   @ManyToOne()
   user: User;
@@ -32,7 +32,10 @@ export class Message {
   attachment?: Attachment;
 
   @Property({ type: 'date' })
-  sentAt = new Date();
+  sentAt: Date;
+
+  @Property({ type: 'date' })
+  updatedAt: Date;
 
   @Property({ type: 'date' })
   deliveredAt?: Date;
@@ -40,10 +43,15 @@ export class Message {
   @Property({ type: 'date' })
   seenAt?: Date;
 
-  constructor(user: User) {
+  constructor(user: User, chat: Chat) {
     this.id = v4();
     this.user = user;
     this.type = MessageType.TEXT;
+    this.chat = chat;
+
+    const now = new Date();
+    this.sentAt = now;
+    this.updatedAt = now;
   }
 
   toResponse(): MessageResponse {
@@ -54,6 +62,7 @@ export class Message {
       attachment: this.attachment?.toResponse() || null,
       deliveredAt: this.deliveredAt?.toISOString(),
       sentAt: this.sentAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
       seenAt: this.seenAt?.toISOString(),
       user: this.user.toUserResponse(),
     };

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ChatResponse, MessageResponse } from '@/lib/api';
-import { useMessagesQuery } from '@/lib/composable/useMessagesQuery';
+import { useMessagesQuery } from '@/lib/composable/query/useMessagesQuery';
 import { useUserStore } from '@/stores/userStore';
 import { computed } from 'vue';
 import { checkNewDay, formatDivider } from '@/lib/utils/dateUtils';
@@ -9,11 +9,14 @@ import ImageMessageItem from '../items/ImageMessageItem.vue';
 import InfiniteScroll from './InfiniteScroll.vue';
 import SpinnerIcon from '../icons/SpinnerIcon.vue';
 import GreetingMessage from './GreetingMessage.vue';
+import { useChatSocket } from '@/lib/composable/ws/useChatSocket';
 
 const props = defineProps<{ chat: ChatResponse }>();
 
 const { data, hasMore, fetchNextPage, isLoading } = useMessagesQuery(props.chat.id);
 const { user } = useUserStore();
+
+useChatSocket(props.chat.id);
 
 const messages = computed(() => {
   return data.value ? data.value?.pages.map((p) => p.map((mr) => mr)).flat() : [];
@@ -36,7 +39,11 @@ const isNewDay = (message: MessageResponse, index: number): boolean => {
   <div v-else-if="messages?.length === 0" class="justify-center flex my-4 text-center">
     <GreetingMessage :chat="chat" />
   </div>
-  <div v-else class="p-4 overflow-y-auto flex flex-col-reverse scrollbar-css" ref="scrollComponent">
+  <div
+    v-else
+    class="py-4 px-8 overflow-y-auto flex flex-col-reverse scrollbar-css"
+    ref="scrollComponent"
+  >
     <ul v-for="(message, index) in messages" :key="message.id" class="pb-2 w-full">
       <div v-if="isNewDay(message, index)" class="flex justify-center my-4">
         <p class="text-center bg-black/40 p-2 rounded-xl text-white w-fit">

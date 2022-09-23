@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { MessageResponse } from '@/lib/api';
+import type { ChatResponse, MessageResponse } from '@/lib/api';
 import { useUserStore } from '@/stores/userStore';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { formatSentAt } from '@/lib/utils/dateUtils';
 import ContextMenu from '../modals/ContextMenu.vue';
 import type { ContextMenuItem, ContextMenuSelection } from '@/lib/models/context-menu';
@@ -9,6 +9,9 @@ import { DocumentDuplicateIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/
 import { useClipboard } from '@vueuse/core';
 import DeleteMessageModal from '../modals/DeleteMessageModal.vue';
 import { useChatStore } from '@/stores/chatStore';
+import { useCurrentRoute } from '@/lib/composable/common/useCurrentRoute';
+import { useQueryClient } from 'vue-query';
+import { cKey } from '@/lib/composable/query/useChatsQuery';
 
 const { user } = useUserStore();
 const { setMessage, toggleEditing } = useChatStore();
@@ -55,11 +58,24 @@ const optionClicked = (event: ContextMenuSelection) => {
 const isDeleteModalVisible = ref(false);
 
 const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModalVisible.value);
+
+onMounted(() => {
+  const { id } = useCurrentRoute();
+  const cache = useQueryClient();
+  cache.setQueryData<ChatResponse[]>(cKey, (old) => {
+    if (!old) return [];
+    return [...old.map((c) => (c.id === id.value ? { ...c, hasNotification: false } : c))];
+  });
+});
 </script>
 
 <template>
   <div
-    :class="isAuthor ? 'bg-slate-500 text-white' : 'bg-white'"
+    :class="
+      isAuthor
+        ? 'bg-slate-500 dark:bg-slate-800 text-white'
+        : 'bg-white dark:bg-bgDark dark:text-white'
+    "
     class="py-2 px-4 m-2 rounded-2xl shadow-sm w-fit max-w-lg"
     @contextmenu.prevent.stop="handleContextMenu($event, message.id)"
   >
@@ -70,6 +86,7 @@ const onToggleDeleteMessage = () => (isDeleteModalVisible.value = !isDeleteModal
       {{ message.text }}
     </p>
     <p class="text-right text-xs text-grey-dark mt-1">{{ formatSentAt(message.sentAt) }}</p>
+    <p v-if="message.sentAt !== message.updatedAt" class="text-xs text-grey-dark">Edited</p>
   </div>
   <ContextMenu
     :elementId="'messageMenu-' + message.id"
