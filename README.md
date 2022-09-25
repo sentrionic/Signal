@@ -10,6 +10,7 @@ For more information about each component take a look at their README's.
 
 - [Server](/server/): The server written using NestJS.
 - [Web](/web/): The Vue client.
+- [App](/app/): The Android client
 
 ## Features
 
