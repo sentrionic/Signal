@@ -4,6 +4,8 @@ Signal is a simple chat app that allows you to chat with your friends and groups
 
 The app is build using [NestJS](https://nestjs.com/) and [Vue](https://vuejs.org/).
 
+For a Microservice approach of the same stack check out the [microservice branch](https://github.com/sentrionic/Signal/tree/microservice).
+
 ## Stack
 
 For more information about each component take a look at their README's.
