@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-postgres-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-postgres
+  template:
+    metadata:
+      labels:
+        app: chat-postgres
+    spec:
+      containers:
+        - name: chat-postgres
+          image: postgres
+          env:
+            - name: POSTGRES_DB
+              value: signal
+            - name: POSTGRES_USER
+              value: root
+            - name: POSTGRES_PASSWORD
+              value: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-postgres-srv
+spec:
+  selector:
+    app: chat-postgres
+  ports:
+    - name: db
+      protocol: TCP
+      port: 5432
+      targetPort: 5432

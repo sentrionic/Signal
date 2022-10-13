@@ -1,0 +1,67 @@
+import { UseGuards } from '@nestjs/common';
+import {
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { WsAuthGuard } from '../common/guards/ws.auth.guard';
+import { SocketService } from './socket.service';
+
+@WebSocketGateway({
+  namespace: '/ws',
+  transports: ['websocket'],
+  upgrade: false,
+})
+export class AppGateway implements OnGatewayInit {
+  @WebSocketServer()
+  server!: Server;
+
+  constructor(private readonly socketService: SocketService) {}
+
+  async afterInit(server: Server) {
+    this.socketService.setupSocket(server);
+  }
+
+  @UseGuards(WsAuthGuard)
+  @SubscribeMessage('joinUser')
+  handleUserJoin(client: Socket, room: string): void {
+    client.join(room);
+    this.socketService.updateLastOnline(client);
+  }
+
+  @SubscribeMessage('leaveRoom')
+  handleRoomLeave(client: Socket, room: string): void {
+    client.leave(room);
+  }
+
+  @SubscribeMessage('joinChat')
+  @UseGuards(WsAuthGuard)
+  handleChatJoin(client: Socket, room: string): void {
+    this.socketService.joinChat(client, room);
+  }
+
+  @SubscribeMessage('leaveChat')
+  @UseGuards(WsAuthGuard)
+  handleChatLeave(client: Socket, room: string): void {
+    client.leave(room);
+    this.socketService.updateLastSeen(client, room);
+  }
+
+  @SubscribeMessage('startTyping')
+  @UseGuards(WsAuthGuard)
+  handleStartTyping(_: Socket, data: string[]): void {
+    const room = data[0];
+    const username = data[1];
+    this.socketService.addTyping(room, username);
+  }
+
+  @SubscribeMessage('stopTyping')
+  @UseGuards(WsAuthGuard)
+  handleStopTyping(_: Socket, data: string[]): void {
+    const room = data[0];
+    const username = data[1];
+    this.socketService.stopTyping(room, username);
+  }
+}

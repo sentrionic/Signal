@@ -1,0 +1,18 @@
+import { Module } from '@nestjs/common';
+import { ChatsService } from './chats.service';
+import { ChatsController } from './chats.controller';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { User } from '../users/entities/user.entity';
+import { Chat } from './entities/chat.entity';
+import { Message } from '../messages/entities/message.entity';
+import { RmqModule, Services } from '@senorg/common';
+
+@Module({
+  imports: [
+    MikroOrmModule.forFeature({ entities: [Chat, User, Message] }),
+    RmqModule.register({ name: Services.Notification }),
+  ],
+  controllers: [ChatsController],
+  providers: [ChatsService],
+})
+export class ChatsModule {}

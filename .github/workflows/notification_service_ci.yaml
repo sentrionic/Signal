@@ -1,0 +1,39 @@
+name: "[NotificationService] Run Lint"
+
+defaults:
+  run:
+    working-directory: ./notification-service
+
+on:
+  push:
+    paths:
+      - 'notification-service/**'
+  pull_request:
+    paths:
+      - 'notification-service/**'
+
+jobs:
+  linter:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: latest
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: 'pnpm'
+          cache-dependency-path: notification-service/pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build server
+        run: pnpm build
+
+      - name: Eslint check
+        run: pnpm lint

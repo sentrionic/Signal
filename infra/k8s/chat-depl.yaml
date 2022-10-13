@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chat-service
+  template:
+    metadata:
+      labels:
+        app: chat-service
+    spec:
+      containers:
+        - name: chat-service
+          image: sentrionic/chat-service
+          env:
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: session-secret
+                  key: SESSION_SECRET
+            - name: PORT
+              value: "4000"
+            - name: DATABASE_URL
+              value: 'postgresql://root:password@chat-postgres-srv:5432/signal?sslmode=disable'
+            - name: RABBIT_MQ_URI
+              value: 'amqp://rabbitmq-srv:5672'
+            - name: NODE_ENV
+              value: 'development'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-srv
+spec:
+  selector:
+    app: chat-service
+  ports:
+    - name: chat-service
+      protocol: TCP
+      port: 4000
+      targetPort: 4000

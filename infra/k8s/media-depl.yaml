@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: media-service
+  template:
+    metadata:
+      labels:
+        app: media-service
+    spec:
+      containers:
+        - name: media-service
+          image: sentrionic/media-service
+          env:
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: session-secret
+                  key: SESSION_SECRET
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-access
+                  key: AWS_ACCESS_KEY
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: secret-access
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_STORAGE_BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: bucket-name
+                  key: AWS_STORAGE_BUCKET_NAME
+            - name: AWS_S3_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: s3-region
+                  key: AWS_S3_REGION 
+            - name: RABBIT_MQ_URI
+              value: 'amqp://rabbitmq-srv:5672'
+            - name: RABBIT_MQ_MEDIA_QUEUE
+              value: 'media'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-srv
+spec:
+  selector:
+    app: media-service
+  ports:
+    - name: media-service
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
